@@ -9,12 +9,16 @@ services:
             - ./src:/var/www/
         depends_on:
             - php
+        networks:
+            - app-network
 
     php:
         platform: linux/arm64
         build: ./docker/php
         volumes:
             - ./src:/var/www/
+        networks:
+            - app-network
 
     mysql:
         platform: linux/amd64
