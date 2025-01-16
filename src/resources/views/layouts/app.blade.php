@@ -13,8 +13,8 @@
     <header class="header">
         <div class="header__logo">
             <img src="{{ asset('images/logo.svg') }}" alt="サイトのロゴ">
-            @yield('link')
         </div>
+        @yield('link')
     </header>
     <div class="content">
         @yield('content')
