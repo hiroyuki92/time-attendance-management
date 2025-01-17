@@ -21,4 +21,6 @@ Route::get('/', function () {
 Route::get('/admin/login', [AuthenticatedSessionController::class, 'index'])->name('admin.login');
 Route::get('/attendance', [AttendanceController::class, 'create'])->name('attendance.create');
 Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('attendance.index');
+Route::get('/attendance/id', [AttendanceController::class, 'show'])->name('attendance.show');
+
 

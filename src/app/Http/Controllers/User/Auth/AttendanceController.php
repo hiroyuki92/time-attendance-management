@@ -18,4 +18,9 @@ class AttendanceController extends Controller
     {
         return view('user.user_attendance_index');
     }
+
+    public function show()
+    {
+        return view('user.user_attendance_detail');
+    }
 }
