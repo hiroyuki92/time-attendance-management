@@ -8,9 +8,14 @@ use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
+    public function create()
+    {
+        $date = formatJapaneseDate();
+        return view('user.user_attendance_create', compact('date'));
+    }
+
     public function index()
     {
-        $date = formatJapaneseDate();  // ヘルパー関数を使用
-        return view('user.user_attendance_create', compact('date'));
+        return view('user.user_attendance_index');
     }
 }

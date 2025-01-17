@@ -22,13 +22,13 @@
 
 @section('content')
 <main class="container center">
-<div class="attendance">
-    <span class="status-badge">勤務外</span>
-    <h1 class="date">{{ $date }}</h1>
-    <div class="time">{{ date('H:i') }}</div>
-    <div>
-        <button class="attendance-btn">出勤</button>
+    <div class="attendance">
+        <span class="status-badge">勤務外</span>
+        <h1 class="date">{{ $date }}</h1>
+        <div class="time">{{ date('H:i') }}</div>
+        <div>
+            <button class="attendance-btn">出勤</button>
+        </div>
     </div>
-</div>
 </main>
 @endsection
