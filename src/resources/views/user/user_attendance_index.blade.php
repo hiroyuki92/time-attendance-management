@@ -32,7 +32,7 @@
         </button>
     </nav>
     <div class="table-container">
-        <table class=attendance-table>
+        <table class="attendance-table">
             <thead>
                 <tr>
                     <th>日付</th>

@@ -134,7 +134,13 @@
     border-bottom: 3px solid #e5e7eb;
 }
 
-.attendance-table th,
+.attendance-table th {
+    padding: 10px 20px;
+    background-color: #fff;
+    border-bottom: 3px solid #e5e7eb;
+    font-weight: bold;
+}
+
 .attendance-table td {
     padding: 10px 20px;
     background-color: #fff;
@@ -212,7 +218,6 @@ span {
     color: #fff;
     padding: 5px 40px;
     border-radius: 4px;
-    transition: background-color 0.2s;
     font-weight: bold;
     margin-top: 10%;
     border: none;
