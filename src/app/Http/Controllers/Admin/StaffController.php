@@ -11,4 +11,5 @@ class StaffController extends Controller
     {
         return view('admin.admin_staff_list');
     }
+
 }

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StaffAttendanceController;
 use App\Http\Controllers\User\AttendanceController;
 
 /*
@@ -25,4 +26,6 @@ Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('at
 Route::get('/attendance/id', [AttendanceController::class, 'show'])->name('attendance.show');
 
 Route::get('/admin/staff/list', [StaffController::class, 'index'])->name('staff.index');
+Route::get('/admin/attendance/staff/id', [StaffAttendanceController::class, 'index'])->name('staff.show');
+Route::get('/admin/attendance/id', [StaffAttendanceController::class, 'show'])->name('staff.attendance.show');
 
