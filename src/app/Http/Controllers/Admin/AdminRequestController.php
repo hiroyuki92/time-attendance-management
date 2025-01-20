@@ -11,4 +11,9 @@ class AdminRequestController extends Controller
     {
         return view('admin.admin_request_index');
     }
+
+    public function show()
+    {
+        return view('admin.admin_request_approval');
+    }
 }

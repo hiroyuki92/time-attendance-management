@@ -1,5 +1,4 @@
 
-
 .attendance {
     text-align: center;
     padding-top: 15%;
@@ -156,6 +155,7 @@
 .form-container {
     background-color: white;
     border-radius: 8px;
+    overflow: hidden;
 }
 
 .form-group {
@@ -235,4 +235,19 @@ span {
 .tab {
     padding: 10px 20px;
     font-size: 15px;
+}
+
+.form-group_content {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    padding: 0 30% 0 10%;
+    background-color: white;
+}
+
+.form-group_content-detail {
+    background-color: white;
+    font-weight: bold;
 }
