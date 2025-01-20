@@ -223,3 +223,16 @@ span {
     border: none;
     cursor: pointer;
 }
+
+.tabs {
+    display: flex;
+    justify-content: left;
+    padding: 10px 20px;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #000;
+}
+
+.tab {
+    padding: 10px 20px;
+    font-size: 15px;
+}
