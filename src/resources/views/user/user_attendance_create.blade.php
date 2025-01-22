@@ -4,22 +4,6 @@
 <link rel="stylesheet" href="{{ asset('css/attendance.css')}}">
 @endsection
 
-@section('link')
-<nav class="header__nav">
-    <ul>
-        <li>勤怠</li>
-        <li>勤怠一覧</li>
-        <li>申請</li>
-        <li>
-            <form action="/logout" method="post">
-                @csrf
-                <button class="header__logout">ログアウト</button>
-            </form>
-        </li>
-    </ul>
-</nav>
-@endsection
-
 @section('content')
 <main class="container center">
     <div class="attendance">

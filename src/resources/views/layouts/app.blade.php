@@ -14,7 +14,21 @@
         <div class="header__logo">
             <img src="{{ asset('images/logo.svg') }}" alt="サイトのロゴ">
         </div>
-        @yield('link')
+        <nav class="header__nav">
+            @auth
+                <ul class="header__menu">
+                    <li><a href="{{ route('attendance.create') }}">勤怠</a></li>
+                    <li><a href="{{ route('attendance.index') }}">勤怠一覧</a></li>
+                    <li><a href="{{ route('requests.index') }}">申請</a></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="post">
+                            @csrf
+                            <button class="header__logout">ログアウト</button>
+                        </form>
+                    </li>
+                </ul>
+            @endauth
+        </nav>
     </header>
     <div class="content">
         @yield('content')

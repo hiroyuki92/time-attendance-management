@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminRequestController;
 use App\Http\Controllers\User\AttendanceController;
 use App\Http\Controllers\User\RequestController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,16 +20,46 @@ use App\Http\Controllers\User\RequestController;
 |
 */
 
+// 管理者認証ルート
+Route::prefix('admin')->name('admin.')->group(function () {
+    // 未認証の管理者用ルート
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
+    });
 
-Route::get('/admin/login', [AuthenticatedSessionController::class, 'index'])->name('admin.login');
-Route::get('/attendance', [AttendanceController::class, 'create'])->name('attendance.create');
-Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('attendance.index');
-Route::get('/attendance/id', [AttendanceController::class, 'show'])->name('attendance.show');
-Route::get('/stamp_correction_request/list', [RequestController::class, 'index'])->name('requests.index');
+    // 認証済み管理者用ルート
+    Route::middleware('auth:admin')->group(function () {
+        // スタッフ管理
+        Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.index');
+        
+        // 勤怠管理
+        Route::prefix('attendance')->name('attendance.')->group(function () {
+            Route::get('/list', [StaffAttendanceController::class, 'index'])->name('list');
+            Route::get('/id', [StaffAttendanceController::class, 'show'])->name('detail.show');
+            Route::get('/staff/id', [StaffAttendanceController::class, 'staffAttendances'])->name('staff.show');
+        });
 
-Route::get('/admin/attendance/list', [StaffAttendanceController::class, 'index'])->name('staff.attendance.list');
-Route::get('/admin/attendance/id', [StaffAttendanceController::class, 'show'])->name('staff.attendance.detail.show');
-Route::get('/admin/staff/list', [StaffController::class, 'index'])->name('staff.index');
-Route::get('/admin/attendance/staff/id', [StaffAttendanceController::class, 'staffAttendances'])->name('staff.attendance.show');
-Route::get('/admin/stamp_correction_request/list', [AdminRequestController::class, 'index'])->name('admin.requests.index');
-Route::get('/stamp_correction_request/approve', [AdminRequestController::class, 'show'])->name('admin.requests.show');
+        // 打刻修正申請
+        Route::prefix('stamp-correction')->name('requests.')->group(function () {
+            Route::get('/list', [AdminRequestController::class, 'index'])->name('index');
+            Route::get('/approve', [AdminRequestController::class, 'show'])->name('show');
+        });
+    });
+});
+
+// 一般ユーザー用ルート
+Route::middleware('auth')->group(function () {
+    // 勤怠管理
+    Route::prefix('attendance')->name('attendance.')->group(function () {
+        Route::get('/', [AttendanceController::class, 'create'])->name('create');
+        Route::get('/list', [AttendanceController::class, 'index'])->name('index');
+        Route::get('/id', [AttendanceController::class, 'show'])->name('show');
+    });
+
+    // 打刻修正申請
+    Route::prefix('stamp-correction')->name('requests.')->group(function () {
+        Route::get('/list', [RequestController::class, 'index'])->name('index');
+    });
+
+});
+
