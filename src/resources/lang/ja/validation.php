@@ -133,6 +133,12 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'password' => [
+            'confirmed' => 'パスワードと一致しません。'
+        ],
+        'password_confirmation' => [
+            'confirmed' => 'パスワードと一致しません。',
+        ],
     ],
 
     /*
@@ -146,5 +152,9 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'name' => 'お名前',
+        'email' => 'メールアドレス',
+        'password' => 'パスワード',
+    ],
 ];
