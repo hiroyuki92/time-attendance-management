@@ -13,7 +13,7 @@
     <nav class="month-nav">
         <button class="month-nav-button">
             <span class="arrow arrow-left"></span>
-            前月
+            <a href="{{ route('attendance.index', ['month' => $previousMonth]) }}" class="btn btn-primary">前月</a>
         </button>
 
         <div class="current-month">
@@ -23,11 +23,11 @@
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            2023/06
+            {{ $currentMonth }}
         </div>
 
         <button class="month-nav-button">
-            翌月
+            <a href="{{ route('attendance.index', ['month' => $nextMonth]) }}" class="btn btn-primary">翌月</a>
             <span class="arrow arrow-right"></span>
         </button>
     </nav>

@@ -96,14 +96,23 @@ class AttendanceController extends Controller
     return redirect()->route('attendance.create');
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $month = $request->input('month', now()->format('Y-m'));
+        $startOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
         $attendances = Attendance::where('user_id', Auth::id())
-        ->whereMonth('work_date', now()->month)
+        ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
         ->orderBy('work_date', 'asc')
         ->get();
 
-        return view('user.user_attendance_index', compact('attendances'));
+        $previousMonth = $startOfMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth = $startOfMonth->copy()->addMonth()->format('Y-m');
+
+        $currentMonth = $startOfMonth->format('Y/m');
+
+        return view('user.user_attendance_index', compact('attendances', 'currentMonth', 'previousMonth', 'nextMonth', 'month'));
     }
 
     public function show()
