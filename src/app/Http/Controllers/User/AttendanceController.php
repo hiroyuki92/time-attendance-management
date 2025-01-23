@@ -8,16 +8,37 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
+    protected function getTodayAttendance($status = null)
+    {
+        $query = Attendance::where('user_id', Auth::id())
+            ->where('work_date', now()->toDateString());
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        return $query->first();
+    }
+
     public function create()
     {
         $date = formatJapaneseDate();
-        $latestAttendance = Attendance::where('user_id', Auth::id())
-            ->whereDate('clock_in', today())
-            ->first();
-        return view('user.user_attendance_create', compact('date', 'latestAttendance'));
+        $latestAttendance = $this->getTodayAttendance();
+        $isCheckedOut = $latestAttendance && $latestAttendance->status === 'left';
+
+        $latestAttendanceStatus = null;
+
+        if (!$latestAttendance) {
+            $latestAttendanceStatus = 'no_record';
+        } else {
+            $latestAttendanceStatus = $latestAttendance->status;
+        }
+
+        return view('user.user_attendance_create', compact('date', 'latestAttendance', 'latestAttendanceStatus','isCheckedOut'));
     }
 
     public function startWork(Request $request)
@@ -35,62 +56,46 @@ class AttendanceController extends Controller
 
     public function endWork(Request $request)
     {
-    $attendance = Attendance::where('user_id', Auth::id())
-        ->where('work_date', now()->toDateString())
-        ->where('status', 'working')
-        ->first();
+        $attendance = $this->getTodayAttendance('working');
         
-    if ($attendance) {
-        $attendance->clock_out = now();
-        $attendance->status = 'left';
-        $attendance->save();
-    }
-    return redirect()->route('attendance.create');
+        $attendance->update([
+            'clock_out' => now(),
+            'status' => 'left'
+        ]);
+        return redirect()->route('attendance.create');
     }
 
     public function startBreak(Request $request)
     {
-    $attendance = Attendance::where('user_id', Auth::id())
-        ->where('work_date', now()->toDateString())
-        ->where('status', 'working')
-        ->first();
+        $attendance = $this->getTodayAttendance('working');
 
-    if ($attendance) {
-        $attendance->status = 'breaking';
-        $attendance->save();
+        DB::transaction(function () use ($attendance) {
+            $attendance->update(['status' => 'breaking']);
 
-        // 休憩記録を作成
-        BreakTime::create([
-            'attendance_id' => $attendance->id,
-            'break_start' => now()
-        ]);
+            BreakTime::create([
+                'attendance_id' => $attendance->id,
+                'break_start' => now()
+            ]);
+        });
 
-    }
-
-    return redirect()->route('attendance.create');
+        return redirect()->route('attendance.create');
     }
 
     public function endBreak(Request $request)
     {
-    $attendance = Attendance::where('user_id', Auth::id())
-        ->where('work_date', now()->toDateString())
-        ->where('status', 'breaking')
-        ->first();
+        $attendance = $this->getTodayAttendance('breaking');
 
-    if ($attendance) {
-        $attendance->status = 'working';
-        $attendance->save();
+        DB::transaction(function () use ($attendance) {
+            $attendance->update(['status' => 'working']);
 
-        // 休憩終了時間を記録
-        $break = BreakTime::where('attendance_id', $attendance->id)
-            ->whereNull('break_end')
-            ->first();
-            
-        if ($break) {
-            $break->break_end = now();
-            $break->save();
-        }
-    }
+            $break = BreakTime::where('attendance_id', $attendance->id)
+                ->whereNull('break_end')
+                ->first();
+
+            if ($break) {
+                $break->update(['break_end' => now()]);
+            }
+        });
 
     return redirect()->route('attendance.create');
     }

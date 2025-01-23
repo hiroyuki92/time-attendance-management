@@ -17,9 +17,16 @@
         <nav class="header__nav">
             @auth
                 <ul class="header__menu">
-                    <li><a href="{{ route('attendance.create') }}">勤怠</a></li>
-                    <li><a href="{{ route('attendance.index') }}">勤怠一覧</a></li>
-                    <li><a href="{{ route('requests.index') }}">申請</a></li>
+                    @if ($isCheckedOut)
+                    {{-- 退勤済みのメニュー --}}
+                        <li><a href="{{ route('attendance.index') }}">今月の出勤一覧</a></li>
+                        <li><a href="{{ route('requests.index') }}">申請</a></li>
+                    @else
+                    {{-- 勤務中のメニュー --}}
+                        <li><a href="{{ route('attendance.create') }}">勤怠</a></li>
+                        <li><a href="{{ route('attendance.index') }}">勤怠一覧</a></li>
+                        <li><a href="{{ route('requests.index') }}">申請</a></li>
+                    @endif
                     <li>
                         <form action="{{ route('logout') }}" method="post">
                             @csrf
