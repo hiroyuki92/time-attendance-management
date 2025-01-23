@@ -4,13 +4,14 @@
     padding-top: 15%;
 }
 
-.status-badge {
+.status-badge__item {
     font-size: 20px;
     background-color: #e5e7eb;
-    padding: 0.25rem 1rem;
+    padding: 5px 20px;
     border-radius: 9999px;
     color: #4b5563;
     margin-bottom: 2rem;
+    display: inline-block;
 }
 
 .date {
@@ -25,14 +26,32 @@
     margin-bottom: 2rem;
 }
 
+.attendance-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
 .attendance-btn {
     background-color: #000;
     color: #fff;
     padding: 0.75rem 4rem;
     border-radius: 0.375rem;
     font-size: 1.125rem;
-    font-weight: 500;
+    font-weight: bold;
     transition: background-color 0.2s;
+}
+
+.attendance-btn.break-btn,
+.attendance-btn.break-return-btn {
+    background-color: #fff;
+    color: #000;
+}
+
+.leaving_message {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
 }
 
 .attendance__list {

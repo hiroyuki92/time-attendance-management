@@ -52,6 +52,10 @@ Route::middleware('auth')->group(function () {
     // 勤怠管理
     Route::prefix('attendance')->name('attendance.')->group(function () {
         Route::get('/', [AttendanceController::class, 'create'])->name('create');
+        Route::post('/start', [AttendanceController::class, 'startWork'])->name('start');
+        Route::post('/end', [AttendanceController::class, 'endWork'])->name('end');
+        Route::post('/break/start', [AttendanceController::class, 'startBreak'])->name('break.start');
+        Route::post('/break/end', [AttendanceController::class, 'endBreak'])->name('break.end');
         Route::get('/list', [AttendanceController::class, 'index'])->name('index');
         Route::get('/id', [AttendanceController::class, 'show'])->name('show');
     });
