@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('formatJapaneseDate')) {
-    function formatJapaneseDate($date = null)  // nullのデフォルト値を設定
+    function formatJapaneseDate($date = null, $format = 'n月j日')  // デフォルトフォーマットを設定
     {
         if (is_null($date)) {
             $date = \Carbon\Carbon::now();  // 引数がない場合は現在時刻を使用
@@ -13,6 +13,6 @@ if (!function_exists('formatJapaneseDate')) {
             $date = \Carbon\Carbon::parse($date);
         }
         
-        return $date->format('Y年n月j日') . '(' . $week[$date->dayOfWeek] . ')';
+        return $date->format($format) . '(' . $week[$date->dayOfWeek] . ')';
     }
 }

@@ -44,22 +44,16 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($attendances as $attendance)
                 <tr>
-                    <td>2023/06/01</td>
-                    <td>09:00</td>
-                    <td>18:00</td>
-                    <td>01:00</td>
-                    <td>08:00</td>
+                    <td>{{ formatJapaneseDate($attendance->work_date) }}</td>
+                    <td>{{ $attendance->clock_in ? $attendance->clock_in->format('H:i') : '-' }}</td>
+                    <td>{{ $attendance->clock_out ? $attendance->clock_out->format('H:i') : '-' }}</td>
+                    <td>{{ $attendance->break_time ?? '00:00' }}</td>
+                    <td>{{ $attendance->total_work_time }}</td>
                     <td><a href="/attendance/1" class="detail-link">詳細</a></td>
                 </tr>
-                <tr>
-                    <td>2023/06/01</td>
-                    <td>09:00</td>
-                    <td>18:00</td>
-                    <td>01:00</td>
-                    <td>08:00</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

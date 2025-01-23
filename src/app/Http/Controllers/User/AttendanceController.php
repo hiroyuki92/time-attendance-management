@@ -26,17 +26,13 @@ class AttendanceController extends Controller
 
     public function create()
     {
-        $date = formatJapaneseDate();
+        $date = \Carbon\Carbon::now()->format('Y年n月j日');
         $latestAttendance = $this->getTodayAttendance();
         $isCheckedOut = $latestAttendance && $latestAttendance->status === 'left';
 
         $latestAttendanceStatus = null;
 
-        if (!$latestAttendance) {
-            $latestAttendanceStatus = 'no_record';
-        } else {
-            $latestAttendanceStatus = $latestAttendance->status;
-        }
+        $latestAttendanceStatus = !$latestAttendance ? 'no_record' : $latestAttendance->status;
 
         return view('user.user_attendance_create', compact('date', 'latestAttendance', 'latestAttendanceStatus','isCheckedOut'));
     }
@@ -102,7 +98,12 @@ class AttendanceController extends Controller
 
     public function index()
     {
-        return view('user.user_attendance_index');
+        $attendances = Attendance::where('user_id', Auth::id())
+        ->whereMonth('work_date', now()->month)
+        ->orderBy('work_date', 'asc')
+        ->get();
+
+        return view('user.user_attendance_index', compact('attendances'));
     }
 
     public function show()
