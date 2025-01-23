@@ -17,7 +17,7 @@
         <nav class="header__nav">
             @auth
                 <ul class="header__menu">
-                    @if ($isCheckedOut)
+                    @if (isset($isCheckedOut) && $isCheckedOut)
                     {{-- 退勤済みのメニュー --}}
                         <li><a href="{{ route('attendance.index') }}">今月の出勤一覧</a></li>
                         <li><a href="{{ route('requests.index') }}">申請</a></li>
