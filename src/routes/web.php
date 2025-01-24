@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/break/end', [AttendanceController::class, 'endBreak'])->name('break.end');
         Route::get('/list', [AttendanceController::class, 'index'])->name('index');
         Route::get('/{id}', [AttendanceController::class, 'show'])->name('show');
+        Route::post('/mod-request', [AttendanceController::class, 'modRequest'])->name('mod_request');
     });
 
     // 打刻修正申請

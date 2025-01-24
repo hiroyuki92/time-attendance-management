@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
 use Illuminate\Support\Facades\DB;
+use App\Models\AttendanceModRequest;
+use App\Models\BreakTimeModRequest;
 
 class AttendanceController extends Controller
 {
@@ -116,15 +118,40 @@ class AttendanceController extends Controller
     }
 
     public function show($id)
+    {
+        $userId = Auth::id();
+
+        // ログインユーザーに紐付く勤怠データを取得
+        $attendance = Attendance::with(['user', 'break_times'])
+            ->where('id', $id) // 特定の勤怠レコード
+            ->where('user_id', $userId) // ログインユーザーに限定
+            ->firstOrFail();
+
+        return view('user.user_attendance_detail', compact('attendance'));
+    }
+
+    public function modRequest(Request $request)
 {
-    $userId = Auth::id();
+    $attendanceModRequest = AttendanceModRequest::create([
+        'attendance_id' => $request->attendance_id,
+        'requested_clock_in' => $request->clock_in,
+        'requested_clock_out' => $request->clock_out,
+        'reason' => $request->reason,
+        'status' => AttendanceModRequest::STATUS_PENDING
+    ]);
 
-    // ログインユーザーに紐付く勤怠データを取得
-    $attendance = Attendance::with(['user', 'break_times'])
-        ->where('id', $id) // 特定の勤怠レコード
-        ->where('user_id', $userId) // ログインユーザーに限定
-        ->firstOrFail();
 
-    return view('user.user_attendance_detail', compact('attendance'));
-}
+    if ($request->break_times) {
+        foreach ($request->break_times as $breakTime) {
+            BreakTimeModRequest::create([
+                'attendance_mod_request_id' => $attendanceModRequest->id,
+                'break_times_id' => $breakTime['id'],
+                'requested_break_start' => $breakTime['break_start'] ?? null,
+                'requested_break_end' => $breakTime['break_end'] ?? null,
+            ]);
+        }
+    }
+
+        return redirect()->route('attendance.index');
+    }
 }

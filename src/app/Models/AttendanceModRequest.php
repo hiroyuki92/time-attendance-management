@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceModificationRequest extends Model
+class AttendanceModRequest extends Model
 {
     use HasFactory;
+
+    protected $table = 'attendance_mod_requests';
 
     protected $fillable = [
         'attendance_id',
