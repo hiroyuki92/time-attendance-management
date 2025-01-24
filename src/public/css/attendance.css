@@ -199,6 +199,16 @@
     justify-content: center;
 }
 
+.form-group__break {
+    background-color: white;
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
 label {
     font-weight: bold;
     background-color: white;
@@ -213,6 +223,7 @@ input {
     background-color: white;
     font-weight: bold;
     text-align: center;
+    font-size: 15px;
 }
 
 span {
@@ -220,6 +231,15 @@ span {
 }
 
 .time-range {
+    background-color: white;
+    width: 80%;
+    padding: 0 10%;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+.break-row {
     background-color: white;
     width: 80%;
     padding: 0 10%;
@@ -237,7 +257,13 @@ span {
 
 .form-text-content {
     width: 100%;
-    text-align: left;
+    height: 100px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    color: #000;
+    font-weight: bold;
+    border-radius: 4px;
 }
 
 .button-container {

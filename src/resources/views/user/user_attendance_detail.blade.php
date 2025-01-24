@@ -13,35 +13,42 @@
     <div class="form-container">
         <div class="form-group">
                 <label>名前</label>
-                <span class="time-range">西 伶奈</span>
+                <span class="time-range">{{ $attendance->user->name }}</span>
         </div>
         <div class="form-group">
             <label>日付</label>
             <div class="time-range">
-                <input type="text" value="2023年">
-                <input type="text" value="6月1日">
+                <input type="text" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('Y') }}年">
+                <input type="text" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('n月j日') }}">
             </div>
         </div>
         <div class="form-group">
             <label>出勤・退勤</label>
             <div class="time-range">
-                <input type="text" value="09:00">
+                <input type="text"  value="{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}">
                 <span>～</span>
-                <input type="text" value="18:00">
+                <input type="text"  value="{{ \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') }}">
             </div>
         </div>
-        <div class="form-group">
-            <label>休憩</label>
+            @foreach ($attendance->break_times as $index => $break_time)
+        <div class="form-group__break">
+                <label>@if ($index === 0)
+                    休憩
+                @else
+                    休憩{{ $index + 1 }}
+                @endif
+                </label>
             <div class="time-range">
-                <input type="text" value="12:00">
-                <span>～</span>
-                <input type="text" value="13:00">
+                    <input type="text" value="{{ $break_time->break_start ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') : '-' }}">
+                    <span>～</span>
+                    <input type="text" value="{{ $break_time->break_end ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') : '-' }}">
             </div>
         </div>
+            @endforeach
         <div class="form-group">
             <label>備考</label>
             <div class="form-text">
-                <input class="form-text-content" type="text" value="電車遅延のため">
+                <textarea class="form-text-content"></textarea>
             </div>
         </div>
     </div>

@@ -115,8 +115,16 @@ class AttendanceController extends Controller
         return view('user.user_attendance_index', compact('attendances', 'currentMonth', 'previousMonth', 'nextMonth', 'month'));
     }
 
-    public function show()
-    {
-        return view('user.user_attendance_detail');
-    }
+    public function show($id)
+{
+    $userId = Auth::id();
+
+    // ログインユーザーに紐付く勤怠データを取得
+    $attendance = Attendance::with(['user', 'break_times'])
+        ->where('id', $id) // 特定の勤怠レコード
+        ->where('user_id', $userId) // ログインユーザーに限定
+        ->firstOrFail();
+
+    return view('user.user_attendance_detail', compact('attendance'));
+}
 }
