@@ -13,10 +13,12 @@
     <form class="form-container" action="{{ route('attendance.mod_request') }}" method="POST">
         @csrf
         <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-        <div class="form-container">
+        <div class="{{ $isPending ? 'form-disabled' : 'form-active' }}">
             <div class="form-group">
-                    <label>名前</label>
-                    <span class="time-range">{{ $attendance->user->name }}</span>
+                <label>名前</label>
+                    <div class="time-range">
+                        <span class="user-name">{{ $attendance->user->name }}</span>
+                    </div>
             </div>
             <div class="form-group">
                 <label>日付</label>
@@ -28,7 +30,7 @@
             <div class="form-group">
                 <label>出勤・退勤</label>
                 <div class="time-range">
-                    <input type="text" name="clock_in"   value="{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}">
+                    <input type="text" name="clock_in" value="{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}">
                     <span>～</span>
                     <input type="text" name="clock_out" value="{{ \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') }}">
                 </div>
@@ -57,8 +59,12 @@
             </div>
         </div>
         <div class="button-container">
+        @if ($isPending)
+            <span class="pending-message">*承認待ちのため修正できません。</span>
+        @else
             <button class="submit-btn">修正</button>
-        </div>
+        @endif
+    </div>
     </form>
 </main>
 @endsection

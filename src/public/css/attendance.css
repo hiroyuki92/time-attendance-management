@@ -106,6 +106,7 @@
     cursor: pointer;
     max-width: 100px;
     text-decoration: none;
+    font-size: 15px;
 }
 
 .month-nav-button:hover {
@@ -189,6 +190,22 @@
     overflow: hidden;
 }
 
+.form-disabled input,
+.form-disabled textarea {
+    border: none;
+    background-color: transparent;
+    color: #000;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.form-active input,
+.form-active textarea {
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #000;
+}
+
 .form-group {
     background-color: white;
     display: flex;
@@ -214,6 +231,7 @@ label {
     background-color: white;
     width: 20%;
     color: #666;
+    letter-spacing: 0.1em;
 }
 
 input {
@@ -224,6 +242,7 @@ input {
     font-weight: bold;
     text-align: center;
     font-size: 15px;
+    letter-spacing: 0.1em;
 }
 
 span {
@@ -237,6 +256,15 @@ span {
     display: flex;
     justify-content: space-between;
     font-weight: bold;
+}
+
+.user-name {
+    background-color: white;
+    width: 80%;
+    padding:5px 10%;
+    display: flex;
+    font-weight: bold;
+    letter-spacing: 0.1em;
 }
 
 .break-row {
@@ -268,6 +296,14 @@ span {
 
 .button-container {
     text-align: right;
+    padding: 20px 0;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+}
+
+.pending-message {
+    color: #f77879;
+    background-color: #F0EFF2;
 }
 
 .submit-btn {
@@ -276,7 +312,7 @@ span {
     padding: 5px 40px;
     border-radius: 4px;
     font-weight: bold;
-    margin-top: 10%;
+    margin-top: 5%;
     border: none;
     cursor: pointer;
 }
