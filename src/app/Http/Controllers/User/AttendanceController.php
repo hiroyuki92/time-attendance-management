@@ -9,8 +9,8 @@ use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
 use Illuminate\Support\Facades\DB;
-use App\Models\AttendanceModRequest;
-use App\Models\BreakTimeModRequest;
+use App\Models\AttendanceModification;
+use App\Models\BreakTimeModification;
 
 class AttendanceController extends Controller
 {
@@ -121,15 +121,14 @@ class AttendanceController extends Controller
     {
         $userId = Auth::id();
 
-        // ログインユーザーに紐付く勤怠データを取得
         $attendance = Attendance::with(['user', 'break_times'])
-            ->where('id', $id) // 特定の勤怠レコード
-            ->where('user_id', $userId) // ログインユーザーに限定
+            ->where('id', $id)
+            ->where('user_id', $userId)
             ->firstOrFail();
 
         // 該当勤怠の修正リクエスト状況を取得
-        $modRequest = AttendanceModRequest::where('attendance_id', $id)
-            ->where('status', AttendanceModRequest::STATUS_PENDING)
+        $modRequest = AttendanceModification::where('attendance_id', $id)
+            ->where('status', AttendanceModification::STATUS_PENDING)
             ->first();
 
         // 申請中かどうかを判定
@@ -138,7 +137,7 @@ class AttendanceController extends Controller
         return view('user.user_attendance_detail', compact('attendance', 'isPending'));
     }
 
-    public function modRequest(Request $request)
+    /* public function modRequest(Request $request)
     {
         $attendanceModRequest = AttendanceModRequest::create([
             'attendance_id' => $request->attendance_id,
@@ -161,5 +160,5 @@ class AttendanceController extends Controller
         }
 
         return redirect()->route('attendance.index');
-    }
+    } */
 }

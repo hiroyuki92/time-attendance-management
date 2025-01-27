@@ -30,33 +30,41 @@
             <div class="form-group">
                 <label>出勤・退勤</label>
                 <div class="time-range">
-                    <input type="text" name="clock_in" value="{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}">
+                    <input type="text" name="requested_clock_in" value="{{old('requested_clock_in', \Carbon\Carbon::parse($attendance->clock_in)->format('H:i')) }}">
                     <span>～</span>
-                    <input type="text" name="clock_out" value="{{ \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') }}">
+                    <input type="text" name="requested_clock_out" value="{{old('requested_clock_out', \Carbon\Carbon::parse($attendance->clock_out)->format('H:i')) }}">
                 </div>
             </div>
-                @foreach ($attendance->break_times as $index => $break_time)
+            @foreach ($attendance->break_times as $index => $break_time)
             <div class="form-group__break">
-                    <label>@if ($index === 0)
+                <label>
+                    @if ($index === 0)
                         休憩
                     @else
                         休憩{{ $index + 1 }}
                     @endif
-                    </label>
+                </label>
                 <div class="time-range">
                     <input type="hidden" name="break_times[{{$index}}][id]" value="{{ $break_time->id }}">
-                    <input type="text" name="break_times[{{$index}}][break_start]" value="{{ $break_time->break_start ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') : '-' }}">
+                    <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{ old('break_times.'.$index.'.requested_break_start', $break_time->break_start ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') : '-') }}">
                     <span>～</span>
-                    <input type="text" name="break_times[{{$index}}][break_end]" value="{{ $break_time->break_end ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') : '-' }}">
+                    <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{old('break_times.'.$index.'.requested_break_end', $break_time->break_end ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') : '-') }}">
                 </div>
             </div>
-                @endforeach
+            @endforeach
             <div class="form-group">
                 <label>備考</label>
                 <div class="form-text">
-                    <textarea class="form-text-content" name="reason"></textarea>
+                    <textarea class="form-text-content" name="reason">{{ old('reason') }}</textarea>
                 </div>
             </div>
+            @if ($errors->any())
+                <div class="error-messages">
+                    @foreach ($errors->all() as $error)
+                        <div class="error-message">{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
         </div>
         <div class="button-container">
         @if ($isPending)
@@ -64,7 +72,7 @@
         @else
             <button class="submit-btn">修正</button>
         @endif
-    </div>
+        </div>
     </form>
 </main>
 @endsection

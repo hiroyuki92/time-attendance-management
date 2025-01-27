@@ -344,3 +344,9 @@ span {
     background-color: white;
     font-weight: bold;
 }
+
+.error-message {
+    color: #ff333f;
+    margin-top: 15px;
+    font-weight: bold;
+}
