@@ -30,9 +30,17 @@
             <div class="form-group">
                 <label>出勤・退勤</label>
                 <div class="time-range">
-                    <input type="text" name="requested_clock_in" value="{{old('requested_clock_in', \Carbon\Carbon::parse($attendance->clock_in)->format('H:i')) }}">
+                    <input type="text" name="requested_clock_in" value="{{ old('requested_clock_in', 
+                          $isPending && $modRequest
+                            ? \Carbon\Carbon::parse($modRequest->requested_clock_in)->format('H:i')
+                            : \Carbon\Carbon::parse($attendance->clock_in)->format('H:i')) 
+                    }}">
                     <span>～</span>
-                    <input type="text" name="requested_clock_out" value="{{old('requested_clock_out', \Carbon\Carbon::parse($attendance->clock_out)->format('H:i')) }}">
+                    <input type="text" name="requested_clock_out" value="{{ old('requested_clock_out',
+                          $isPending && $modRequest
+                            ? \Carbon\Carbon::parse($modRequest->requested_clock_out)->format('H:i')
+                            : \Carbon\Carbon::parse($attendance->clock_out)->format('H:i'))
+                    }}">
                 </div>
             </div>
             @foreach ($attendance->break_times as $index => $break_time)
@@ -46,16 +54,32 @@
                 </label>
                 <div class="time-range">
                     <input type="hidden" name="break_times[{{$index}}][id]" value="{{ $break_time->id }}">
-                    <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{ old('break_times.'.$index.'.requested_break_start', $break_time->break_start ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') : '-') }}">
+                    <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{ old('break_times.'.$index.'.requested_break_start', 
+                      $isPending && isset($breakModRequests[$break_time->id])
+                        ? ($breakModRequests[$break_time->id]->requested_break_start 
+                            ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_start)->format('H:i') 
+                            : '-')
+                        : ($break_time->break_start 
+                            ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') 
+                            : '-')) 
+                  }}">
                     <span>～</span>
-                    <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{old('break_times.'.$index.'.requested_break_end', $break_time->break_end ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') : '-') }}">
+                    <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{ old('break_times.'.$index.'.requested_break_end',
+                      $isPending && isset($breakModRequests[$break_time->id])
+                        ? ($breakModRequests[$break_time->id]->requested_break_end 
+                            ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_end)->format('H:i') 
+                            : '-')
+                        : ($break_time->break_end 
+                            ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') 
+                            : '-'))
+                  }}">
                 </div>
             </div>
             @endforeach
             <div class="form-group">
                 <label>備考</label>
                 <div class="form-text">
-                    <textarea class="form-text-content" name="reason">{{ old('reason') }}</textarea>
+                    <textarea class="form-text-content" name="reason">{{ old('reason', $isPending && $modRequest ? $modRequest->reason : '') }}</textarea>
                 </div>
             </div>
             @if ($errors->any())
@@ -66,13 +90,13 @@
                 </div>
             @endif
         </div>
-        <div class="button-container">
+    </form>
+    <div class="button-container">
         @if ($isPending)
             <span class="pending-message">*承認待ちのため修正できません。</span>
         @else
             <button class="submit-btn">修正</button>
         @endif
         </div>
-    </form>
 </main>
 @endsection

@@ -191,12 +191,16 @@
 }
 
 .form-disabled input,
+.form-disabled span,
 .form-disabled textarea {
     border: none;
     background-color: transparent;
     color: #000;
     cursor: not-allowed;
     pointer-events: none;
+    text-align: left;
+    min-width: 10ch;
+    height: 40px;
 }
 
 .form-active input,
@@ -261,7 +265,7 @@ span {
 .user-name {
     background-color: white;
     width: 80%;
-    padding:5px 10%;
+    padding:5px 8px;
     display: flex;
     font-weight: bold;
     letter-spacing: 0.1em;
@@ -286,7 +290,7 @@ span {
 .form-text-content {
     width: 100%;
     height: 100px;
-    padding: 5px;
+    padding: 5px 8px;
     border: 1px solid #ddd;
     background-color: #fff;
     color: #000;

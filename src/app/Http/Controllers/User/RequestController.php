@@ -20,7 +20,6 @@ class RequestController extends Controller
         $workDate = $attendance->work_date->format('Y-m-d');
         $clockIn = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_in);
         $clockOut = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_out);
-        
         $attendanceModRequest = AttendanceModification::create([
             'attendance_id' => $request->attendance_id,
             'requested_clock_in' => $clockIn,
@@ -34,10 +33,10 @@ class RequestController extends Controller
                 BreakTimeModification::create([
                     'attendance_mod_request_id' => $attendanceModRequest->id,
                     'break_times_id' => $breakTime['id'],
-                    'requested_break_start' => $breakTime['requested_break_start'] !== '-' 
+                    'requested_break_start' => $breakTime['requested_break_start'] !== '-'
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
                         : null,
-                    'requested_break_end' => $breakTime['requested_break_end'] !== '-' 
+                    'requested_break_end' => $breakTime['requested_break_end'] !== '-'
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
                         : null,
                 ]);
@@ -48,65 +47,30 @@ class RequestController extends Controller
     }
 
     public function index(Request $request)
-{
-    $tab = $request->input('tab', 'pending'); // デフォルトは'pending'
-    $userId = Auth::id();
-    
-    // クエリのベース部分を作成
-    $query = AttendanceModification::whereHas('attendance', function ($query) use ($userId) {
-        $query->where('user_id', $userId);
-    })->with('attendance.user');
-    
-    // タブに応じてステータスを切り替え
-    if ($tab === 'pending') {
-        $requests = $query->where('status', AttendanceModification::STATUS_PENDING)->get();
-        $status_label = '承認待ち';
-    } else {
-        $requests = $query->where('status', AttendanceModification::STATUS_APPROVED)->get();
-        $status_label = '承認済み';
-    }
-    
-    // ステータスラベルを追加
-    $requests = $requests->map(function ($request) use ($status_label) {
-        $request->status_label = $status_label;
-        return $request;
-    });
-
-    return view('user.user_request_index', compact('requests', 'tab'));
-}
-
-
-    /* public function index()
     {
-        $tab = $request->input('pending', 'approved');
+        $tab = $request->input('tab', 'pending');
         $userId = Auth::id();
         
-        // 承認中のデータを取得
-        $pendingRequests = AttendanceModification::whereHas('attendance', function ($query) use ($userId) {
+        $query = AttendanceModification::whereHas('attendance', function ($query) use ($userId) {
             $query->where('user_id', $userId);
-            })->where('status', AttendanceModification::STATUS_PENDING)
-            ->with('attendance.user')
-            ->get();
-
-        // 承認済みのデータを取得
-        $approvedRequests = AttendanceModification::whereHas('attendance', function     ($query) use ($userId) {
-            $query->where('user_id', $userId);
-            })->where('status', AttendanceModification::STATUS_APPROVED)
-            ->with('attendance.user')
-            ->get();
+        })->with('attendance.user');
         
-            $pendingRequests = $pendingRequests->map(function ($request) {
-                $request->status_label = '承認待ち';
-                return $request;
-        });
-
-        $approvedRequests = $approvedRequests->map(function ($request) {
-            $request->status_label = '承認済み';
+        if ($tab === 'pending') {
+            $requests = $query->where('status', AttendanceModification::STATUS_PENDING)->get();
+            $status_label = '承認待ち';
+        } else {
+            $requests = $query->where('status', AttendanceModification::STATUS_APPROVED)->get();
+            $status_label = '承認済み';
+        }
+        
+        // ステータスラベルを追加
+        $requests = $requests->map(function ($request) use ($status_label) {
+            $request->status_label = $status_label;
             return $request;
         });
 
-        return view('user.user_request_index', compact('pendingRequests', 'approvedRequests'));
-    } */
+        return view('user.user_request_index', compact('requests', 'tab'));
+    }
 
     public function show($id)
     {
@@ -117,7 +81,6 @@ class RequestController extends Controller
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        // 該当勤怠の修正リクエスト状況を取得
         $modRequest = AttendanceModification::where('attendance_id', $id)
             ->where('status', AttendanceModification::STATUS_PENDING)
             ->first();

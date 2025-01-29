@@ -37,14 +37,6 @@
                     <td><a href="{{ route('attendance.show', $request->attendance_id) }}" class="detail-link">詳細</a></td>
                 </tr>
                 @endforeach
-                <!-- <tr>
-                    <td>承認待ち</td>
-                    <td>西玲奈</td>
-                    <td>2023/06/01</td>
-                    <td>遅延のため</td>
-                    <td>2023/06/02</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
-                </tr> -->
             </tbody>
         </table>
     </div>
