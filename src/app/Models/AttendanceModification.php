@@ -17,7 +17,6 @@ class AttendanceModification extends Model
         'requested_clock_out',
         'reason',
         'status',
-        'comment'
     ];
 
     protected $casts = [

@@ -137,28 +137,4 @@ class AttendanceController extends Controller
         return view('user.user_attendance_detail', compact('attendance', 'isPending'));
     }
 
-    /* public function modRequest(Request $request)
-    {
-        $attendanceModRequest = AttendanceModRequest::create([
-            'attendance_id' => $request->attendance_id,
-            'requested_clock_in' => $request->clock_in,
-            'requested_clock_out' => $request->clock_out,
-            'reason' => $request->reason,
-            'status' => AttendanceModRequest::STATUS_PENDING
-        ]);
-
-
-        if ($request->break_times) {
-            foreach ($request->break_times as $breakTime) {
-                BreakTimeModRequest::create([
-                    'attendance_mod_request_id' => $attendanceModRequest->id,
-                    'break_times_id' => $breakTime['id'],
-                    'requested_break_start' => $breakTime['break_start'] ?? null,
-                    'requested_break_end' => $breakTime['break_end'] ?? null,
-                ]);
-            }
-        }
-
-        return redirect()->route('attendance.index');
-    } */
 }

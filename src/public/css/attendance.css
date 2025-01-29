@@ -326,8 +326,14 @@ span {
 }
 
 .tab {
-    padding: 10px 20px;
+    padding: 10px 30px;
     font-size: 15px;
+    text-decoration: none;
+    color: #000;
+}
+
+.tab.active {
+    font-weight: bold;
 }
 
 .form-group_content {
