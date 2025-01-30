@@ -57,7 +57,7 @@
 .attendance__list {
     display: flex;
     align-items: center;
-    margin: 20px 0;
+    margin: 20px 0 70px 0;
 }
 .vertical-bar {
     width: 6px;

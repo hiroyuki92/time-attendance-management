@@ -29,7 +29,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 
     // 認証済み管理者用ルート
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'admin'])->group(function () {
         // スタッフ管理
         Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.index');
         Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

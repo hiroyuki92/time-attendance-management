@@ -33,9 +33,9 @@
 
                     {{-- 管理者用のスタッフ一覧ボタン --}}
                     @if (request()->is('admin/*'))
-                        <li><a href="{{ route('admin.staff.index') }}">勤怠一覧</a></li>
+                        <li><a href="{{ route('admin.attendance.list') }}">勤怠一覧</a></li>
                         <li><a href="{{ route('admin.staff.index') }}">スタッフ一覧</a></li>
-                        <li><a href="{{ route('admin.staff.index') }}">申請一覧</a></li>
+                        <li><a href="{{ route('admin.requests.index') }}">申請一覧</a></li>
                     @endif
                     <li>
                         <form action="{{ request()->is('admin/*') ? route('admin.logout') : route('logout') }}" method="post">
