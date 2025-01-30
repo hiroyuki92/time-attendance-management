@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<form action="/login" method="post" class="authenticate center">
+<form action="{{ route('admin.login') }}" method="post" class="authenticate center">
     @csrf
     <h1 class="page__title">ログイン</h1>
     <label for="mail" class="entry__name">メールアドレス</label>
@@ -23,4 +23,6 @@
         @enderror
     </div>
     <button class="btn btn--big">管理者ログインする</button>
+</form>
+<a href="/login" class="link">ユーザーログインはこちら</a>
 @endsection

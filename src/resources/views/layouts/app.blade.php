@@ -28,7 +28,7 @@
                         <li><a href="{{ route('requests.index') }}">申請</a></li>
                     @endif
                     <li>
-                        <form action="{{ route('logout') }}" method="post">
+                        <form action="{{ request()->is('admin/*') ? route('admin.logout') : route('logout') }}" method="post">
                             @csrf
                             <button class="header__logout">ログアウト</button>
                         </form>

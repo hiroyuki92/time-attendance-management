@@ -23,14 +23,16 @@ use App\Http\Controllers\User\RequestController;
 // 管理者認証ルート
 Route::prefix('admin')->name('admin.')->group(function () {
     // 未認証の管理者用ルート
-    Route::middleware('guest:admin')->group(function () {
-        Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [AuthenticatedSessionController::class, 'index']);
+        Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
     });
 
     // 認証済み管理者用ルート
-    Route::middleware('auth:admin')->group(function () {
+    Route::middleware('auth')->group(function () {
         // スタッフ管理
         Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.index');
+        Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
         
         // 勤怠管理
         Route::prefix('attendance')->name('attendance.')->group(function () {

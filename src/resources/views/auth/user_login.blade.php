@@ -24,4 +24,5 @@
     </div>
     <button class="btn btn--big">ログイン</button>
     <a href="/register" class="link">会員登録はこちら</a>
+</form>
 @endsection
