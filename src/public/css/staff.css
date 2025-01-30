@@ -28,10 +28,10 @@
     border-spacing: 0;
     background-color: #fff;
     color: #666;
-    text-align: left;
     border-radius: 5px;
     overflow: hidden;
     text-align: center;
+    margin: 50px auto;
 }
 
 .staff-table th {
@@ -45,4 +45,9 @@
     background-color: #fff;
     border-bottom: 1px solid #e5e7eb;
     font-weight: bold;
+}
+
+.detail-link {
+    color: #000;
+    text-decoration: none;
 }

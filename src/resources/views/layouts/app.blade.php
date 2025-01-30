@@ -17,15 +17,25 @@
         <nav class="header__nav">
             @auth
                 <ul class="header__menu">
-                    @if (isset($isCheckedOut) && $isCheckedOut)
-                    {{-- 退勤済みのメニュー --}}
-                        <li><a href="{{ route('attendance.index') }}">今月の出勤一覧</a></li>
-                        <li><a href="{{ route('requests.index') }}">申請</a></li>
-                    @else
-                    {{-- 勤務中のメニュー --}}
-                        <li><a href="{{ route('attendance.create') }}">勤怠</a></li>
-                        <li><a href="{{ route('attendance.index') }}">勤怠一覧</a></li>
-                        <li><a href="{{ route('requests.index') }}">申請</a></li>
+                    {{-- 管理者でない場合のメニュー --}}
+                    @if (!request()->is('admin/*'))
+                        @if (isset($isCheckedOut) && $isCheckedOut)
+                        {{-- 退勤済みのメニュー --}}
+                            <li><a href="{{ route('attendance.index') }}">今月の出勤一覧</a></li>
+                            <li><a href="{{ route('requests.index') }}">申請</a></li>
+                        @else
+                        {{-- 勤務中のメニュー --}}
+                            <li><a href="{{ route('attendance.create') }}">勤怠</a></li>
+                            <li><a href="{{ route('attendance.index') }}">勤怠一覧</a></li>
+                            <li><a href="{{ route('requests.index') }}">申請</a></li>
+                        @endif
+                    @endif
+
+                    {{-- 管理者用のスタッフ一覧ボタン --}}
+                    @if (request()->is('admin/*'))
+                        <li><a href="{{ route('admin.staff.index') }}">勤怠一覧</a></li>
+                        <li><a href="{{ route('admin.staff.index') }}">スタッフ一覧</a></li>
+                        <li><a href="{{ route('admin.staff.index') }}">申請一覧</a></li>
                     @endif
                     <li>
                         <form action="{{ request()->is('admin/*') ? route('admin.logout') : route('logout') }}" method="post">

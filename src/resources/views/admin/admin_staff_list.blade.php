@@ -20,16 +20,13 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($users as $user)
                 <tr>
-                    <td>西玲奈</td>
-                    <td>reina@coachtech.com</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td><a href="{{ route('admin.attendance.staff.show', ['id' => $user->id]) }}" class="detail-link">詳細</a></td>
                 </tr>
-                <tr>
-                    <td>西玲奈</td>
-                    <td>reina@coachtech.com</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
