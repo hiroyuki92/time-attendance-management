@@ -11,12 +11,8 @@
         <h1 class="heading-text">申請一覧</h1>
     </div>
     <div class="tabs">
-        <button class="tab">
-            承認待ち
-        </button>
-        <button class="tab">
-            承認済み
-        </button>
+        <a href="{{ url('admin/stamp-correction/list?tab=pending') }}" class="tab {{ $tab === 'pending' ? 'active' : '' }}">承認待ち</a>
+        <a href="{{ url('admin/stamp-correction/list?tab=approved') }}" class="tab {{ $tab === 'approved' ? 'active' : '' }}">承認済み</a>
     </div>
     <div class="table-container">
         <table class="attendance-table">
@@ -31,22 +27,16 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($requests as $request)
                 <tr>
-                    <td>承認待ち</td>
-                    <td>西玲奈</td>
-                    <td>2023/06/01</td>
-                    <td>遅延のため</td>
-                    <td>2023/06/02</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
+                    <td>{{ $request->status_label }}</td>
+                    <td>{{ $request->attendance->user->name }}</td>
+                    <td>{{ $request->attendance->work_date->format('Y/m/d') }}</td>
+                    <td>{{ $request->reason }}</td>
+                    <td>{{ $request->created_at->format('Y/m/d') }}</td>
+                    <td><a href="{{ route('admin.requests.show') }}"  class="detail-link">詳細</a></td>
                 </tr>
-                <tr>
-                    <td>承認待ち</td>
-                    <td>西玲奈</td>
-                    <td>2023/06/01</td>
-                    <td>遅延のため</td>
-                    <td>2023/06/02</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
