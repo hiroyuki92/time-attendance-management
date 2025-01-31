@@ -90,13 +90,13 @@
                 </div>
             @endif
         </div>
+        <div class="button-container">
+            @if ($isPending)
+                <span class="pending-message">*承認待ちのため修正できません。</span>
+            @else
+                <button class="submit-btn">修正</button>
+            @endif
+        </div>
     </form>
-    <div class="button-container">
-        @if ($isPending)
-            <span class="pending-message">*承認待ちのため修正できません。</span>
-        @else
-            <button class="submit-btn">修正</button>
-        @endif
-    </div>
 </main>
 @endsection

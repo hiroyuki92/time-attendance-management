@@ -14,9 +14,20 @@ use App\Models\BreakTimeModification;
 
 class StaffAttendanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.admin_attendance_index');
+        $date = $request->query('date');
+        $targetDate = $date ? Carbon::parse($date) : Carbon::today();
+
+        $formattedDate = $targetDate->format('Y/m/d');
+        $formattedDateJP = $targetDate->format('Y年m月d日');
+        $attendances = Attendance::with('user')
+        ->whereDate('work_date', $targetDate->toDateString())
+        ->orderBy('clock_in', 'asc')
+        ->get();
+        $previousDate = $targetDate->copy()->subDay()->format('Y/m/d');
+        $nextDate = $targetDate->copy()->addDay()->format('Y/m/d');
+        return view('admin.admin_attendance_index', compact('attendances', 'formattedDate','formattedDateJP', 'previousDate', 'nextDate'));
     }
 
     public function show($id)

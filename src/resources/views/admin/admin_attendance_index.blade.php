@@ -8,12 +8,12 @@
 <main class="container center">
     <div class="attendance__list">
         <div class="vertical-bar"></div>
-        <h1 class="heading-text">勤怠一覧</h1>
+        <h1 class="heading-text">{{ $formattedDateJP }}の勤怠</h1>
     </div>
     <nav class="month-nav">
         <button class="month-nav-button">
             <span class="arrow arrow-left"></span>
-            前日
+            <a href="{{ route('admin.attendance.list', ['date' => $previousDate]) }}" class="btn btn-primary">前日</a>
         </button>
 
         <div class="current-month">
@@ -23,11 +23,11 @@
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            2023/06/01
+            {{ $formattedDate }}
         </div>
 
         <button class="month-nav-button">
-            翌日
+            <a href="{{ route('admin.attendance.list', ['date' => $nextDate]) }}" class="btn btn-primary">翌日</a>
             <span class="arrow arrow-right"></span>
         </button>
     </nav>
@@ -44,22 +44,16 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($attendances as $attendance)
                 <tr>
-                    <td>山田 太郎</td>
-                    <td>09:00</td>
-                    <td>18:00</td>
-                    <td>01:00</td>
-                    <td>08:00</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
+                    <td>{{ $attendance->user->name }}</td>
+                    <td>{{ $attendance->clock_in ? $attendance->clock_in->format('H:i') : '-' }}</td>
+                    <td>{{ $attendance->clock_out ? $attendance->clock_out->format('H:i') : '-' }}</td>
+                    <td>{{ $attendance->break_time ?? '00:00' }}</td>
+                    <td>{{ $attendance->total_work_time }}</td>
+                    <td><a href="{{ route('admin.attendance.detail.show', $attendance->id) }}" class="detail-link">詳細</a></td>
                 </tr>
-                <tr>
-                    <td>西 玲奈</td>
-                    <td>09:00</td>
-                    <td>18:00</td>
-                    <td>01:00</td>
-                    <td>08:00</td>
-                    <td><a href="/attendance/1" class="detail-link">詳細</a></td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
