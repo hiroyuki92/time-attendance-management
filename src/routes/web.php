@@ -37,7 +37,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // 勤怠管理
         Route::prefix('attendance')->name('attendance.')->group(function () {
             Route::get('/list', [StaffAttendanceController::class, 'index'])->name('list');
-            Route::get('/id', [StaffAttendanceController::class, 'show'])->name('detail.show');
+            Route::get('/{id}', [StaffAttendanceController::class, 'show'])->name('detail.show');
             Route::get('/staff/{id}', [StaffAttendanceController::class, 'staffAttendances'])->name('staff.show');
         });
 

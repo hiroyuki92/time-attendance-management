@@ -16,9 +16,9 @@
         <div class="{{ $isPending ? 'form-disabled' : 'form-active' }}">
             <div class="form-group">
                 <label>名前</label>
-                    <div class="time-range">
-                        <span class="user-name">{{ $attendance->user->name }}</span>
-                    </div>
+                <div class="time-range">
+                    <span class="user-name">{{ $attendance->user->name }}</span>
+                </div>
             </div>
             <div class="form-group">
                 <label>日付</label>
@@ -97,6 +97,6 @@
         @else
             <button class="submit-btn">修正</button>
         @endif
-        </div>
+    </div>
 </main>
 @endsection

@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\BreakTime;
 use App\Models\User;
+use App\Models\AttendanceModification;
+use App\Models\BreakTimeModification;
 
 class StaffAttendanceController extends Controller
 {
@@ -17,9 +19,29 @@ class StaffAttendanceController extends Controller
         return view('admin.admin_attendance_index');
     }
 
-    public function show()
+    public function show($id)
     {
-        return view('admin.admin_attendance_detail');
+        $attendance = Attendance::findOrFail($id);
+        $user = User::findOrFail($attendance->user_id);
+
+        // 該当勤怠の修正リクエスト状況を取得
+        $modRequest = AttendanceModification::where('attendance_id', $id)
+            ->where('status', AttendanceModification::STATUS_PENDING)
+            ->first();
+        
+        // 休憩時間の修正リクエストを取得
+        $breakModRequests = [];
+        if ($modRequest) {
+            $breakModRequests = BreakTimeModification::where('attendance_mod_request_id', $modRequest->id)
+                ->get()
+                ->keyBy('break_time_id');
+        }
+
+        // 申請中かどうかを判定
+        $isPending = $modRequest ? true : false;
+
+        return view('admin.admin_attendance_detail', compact('user', 'attendance', 'modRequest', 'breakModRequests', 'isPending'));
+
     }
 
     public function staffAttendances(Request $request, $id)
