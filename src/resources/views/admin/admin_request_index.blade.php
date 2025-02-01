@@ -27,14 +27,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($requests as $request)
+                @foreach ($requests as $modRequest)
                 <tr>
-                    <td>{{ $request->status_label }}</td>
-                    <td>{{ $request->attendance->user->name }}</td>
-                    <td>{{ $request->attendance->work_date->format('Y/m/d') }}</td>
-                    <td>{{ $request->reason }}</td>
-                    <td>{{ $request->created_at->format('Y/m/d') }}</td>
-                    <td><a href="{{ route('admin.requests.show') }}"  class="detail-link">詳細</a></td>
+                    <td>{{ $modRequest->status_label }}</td>
+                    <td>{{ $modRequest->attendance->user->name }}</td>
+                    <td>{{ $modRequest->attendance->work_date->format('Y/m/d') }}</td>
+                    <td>{{ $modRequest->reason }}</td>
+                    <td>{{ $modRequest->created_at->format('Y/m/d') }}</td>
+                    <td><a href="{{ route('admin.requests.show', ['attendance_correct_request' => $modRequest->id]) }}" class="detail-link">詳細</a></td>
                 </tr>
                 @endforeach
             </tbody>

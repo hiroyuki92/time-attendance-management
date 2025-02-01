@@ -13,7 +13,7 @@
     <div class="form-container">
         <div class="form-group">
                 <label>名前</label>
-                <div class="time-range">西 伶奈</div>
+                <div class="time-range">{{ $user->name }}</div>
         </div>
         <div class="form-group">
             <label>日付</label>
@@ -53,8 +53,15 @@
             </div>
         </div>
     </div>
-    <div class="button-container">
-        <button class="submit-btn">承認</button>
-    </div>
+    @if($modRequest->status == 'approved')
+        <div class="button-container">
+            <button type="button" class="submit-btn-disabled" disabled>承認済み</button>
+        </div>
+    @else
+        <form class="button-container" action="{{ route('admin.requests.approve', ['attendance_correct_request' => $modRequest->id]) }}" method="POST">
+    @csrf
+        <button type="submit" class="submit-btn">承認</button>
+        </form>
+    @endif
 </main>
 @endsection

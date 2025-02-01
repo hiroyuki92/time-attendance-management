@@ -321,6 +321,17 @@ span {
     cursor: pointer;
 }
 
+.submit-btn-disabled {
+    background-color: #696969;
+    color: #fff;
+    padding: 5px 40px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-top: 5%;
+    border: none;
+    cursor: pointer;
+}
+
 .tabs {
     display: flex;
     justify-content: left;
