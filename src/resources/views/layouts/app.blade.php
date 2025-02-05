@@ -14,6 +14,9 @@
         <div class="header__logo">
             <img src="{{ asset('images/logo.svg') }}" alt="サイトのロゴ">
         </div>
+        <button class="hamburger-menu">
+            <span class="hamburger-line"></span>
+        </button>
         <nav class="header__nav">
             @auth
                 <ul class="header__menu">
@@ -38,7 +41,7 @@
                         <li><a href="{{ route('admin.requests.index') }}">申請一覧</a></li>
                     @endif
                     <li>
-                        <form action="{{ request()->is('admin/*') ? route('admin.logout') : route('logout') }}" method="post">
+                        <form class="header__logout-button" action="{{ request()->is('admin/*') ? route('admin.logout') : route('logout') }}" method="post">
                             @csrf
                             <button class="header__logout">ログアウト</button>
                         </form>
@@ -50,5 +53,44 @@
     <div class="content">
         @yield('content')
     </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.querySelector('.hamburger-menu');
+    const nav = document.querySelector('.header__nav');
+    const menu = document.querySelector('.header__menu');
+
+    if (hamburger && nav) {
+        hamburger.addEventListener('click', function(e) {
+            e.stopPropagation(); // イベントの伝播を止める
+            this.classList.toggle('active');
+            nav.classList.toggle('active');
+        });
+
+        // メニューの外側をクリックした時に閉じる
+        document.addEventListener('click', function(e) {
+            if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
+                hamburger.classList.remove('active');
+                nav.classList.remove('active');
+            }
+        });
+
+        // メニュー内のリンクをクリックした時にメニューを閉じる
+        nav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                nav.classList.remove('active');
+            });
+        });
+
+        // 画面サイズが変更された時の処理
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 768 || window.innerWidth > 850) {
+                hamburger.classList.remove('active');
+                nav.classList.remove('active');
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

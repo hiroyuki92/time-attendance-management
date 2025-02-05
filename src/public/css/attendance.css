@@ -170,6 +170,7 @@
     background-color: #fff;
     border-bottom: 3px solid #e5e7eb;
     font-weight: bold;
+    text-align: center;
 }
 
 .attendance-table td {
@@ -177,6 +178,7 @@
     background-color: #fff;
     border-bottom: 1px solid #e5e7eb;
     font-weight: bold;
+    text-align: center;
 }
 
 .attendance-table .detail-link {
