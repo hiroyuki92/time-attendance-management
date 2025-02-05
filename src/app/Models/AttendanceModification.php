@@ -34,6 +34,6 @@ class AttendanceModification extends Model
 
     public function break_modification_requests()
     {
-        return $this->hasMany(BreakModificationRequest::class);
+        return $this->hasMany(BreakTimeModification::class, 'attendance_mod_request_id');
     }
 }

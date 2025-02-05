@@ -72,7 +72,7 @@ class RequestController extends Controller
         return view('user.user_request_index', compact('requests', 'tab'));
     }
 
-    public function show($id)
+    /* public function show($id)
     {
         $userId = Auth::id();
 
@@ -85,8 +85,10 @@ class RequestController extends Controller
             ->where('status', AttendanceModification::STATUS_PENDING)
             ->first();
 
+        $breakModRequests = [];
+
         $isPending = $modRequest ? true : false;
 
         return view('user.user_attendance_detail', compact('attendance', 'isPending'));
-    }
+    } */
 }

@@ -136,13 +136,13 @@ class AttendanceController extends Controller
         if ($modRequest) {
             $breakModRequests = BreakTimeModification::where('attendance_mod_request_id', $modRequest->id)
                 ->get()
-                ->keyBy('break_time_id');
+                ->keyBy('break_times_id');
         }
 
         // 申請中かどうかを判定
         $isPending = $modRequest ? true : false;
 
-        return view('user.user_attendance_detail', compact('attendance', 'isPending', 'modRequest'));
+        return view('user.user_attendance_detail', compact('attendance', 'isPending', 'modRequest', 'breakModRequests'));
     }
 
 }

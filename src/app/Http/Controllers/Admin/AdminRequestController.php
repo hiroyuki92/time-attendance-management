@@ -47,8 +47,7 @@ class AdminRequestController extends Controller
         $user = User::findOrFail($attendance->user_id);
 
         $breakModRequests = BreakTimeModification::where('attendance_mod_request_id', $modRequest->id)
-            ->get()
-            ->keyBy('break_time_id');
+            ->get();
 
         $isPending = $modRequest->status == AttendanceModification::STATUS_PENDING;
 
@@ -58,9 +57,25 @@ class AdminRequestController extends Controller
     public function approve($attendance_correct_request)
     {
         $modRequest = AttendanceModification::findOrFail($attendance_correct_request);
+        $attendance = $modRequest->attendance;
+
+        $attendance->clock_in = $modRequest->requested_clock_in;
+        $attendance->clock_out = $modRequest->requested_clock_out;
+        $attendance->save();
+
+        $break_modifications = $modRequest->break_modification_requests;
+        if ($break_modifications && $break_modifications->isNotEmpty()) {
+            foreach ($break_modifications as $index => $break_mod) {
+                $break_time = $break_mod->break_time;
+                if ($break_time) {
+                    $break_time->break_start = $break_mod->requested_break_start;
+                    $break_time->break_end = $break_mod->requested_break_end;
+                    $break_time->save();
+                }
+            }
+        }
 
         $modRequest->status = AttendanceModification::STATUS_APPROVED;
-
         $modRequest->save();
 
         return redirect()->route('admin.requests.show', ['attendance_correct_request' => $attendance_correct_request]);

@@ -25,12 +25,12 @@ class BreakTimeModification extends Model
 
     public function attendance_mod_request()
     {
-        return $this->belongsTo(AttendanceModRequest::class);
+        return $this->belongsTo(AttendanceModification::class, 'attendance_mod_request_id');
     }
 
     public function break_time()
     {
-        return $this->belongsTo(BreakTime::class);
+        return $this->belongsTo(BreakTime::class, 'break_times_id');
     }
 
 }
