@@ -12,7 +12,7 @@
     </div>
     <nav class="month-nav">
         <button class="month-nav-button">
-            <span class="arrow arrow-left"></span>
+            <span class="arrow">←</span>
             <a href="{{ route('admin.attendance.staff.show', ['id' => $user->id,'month' => $previousMonth]) }}" class="btn btn-primary">前月</a>
         </button>
 
@@ -28,7 +28,7 @@
 
         <button class="month-nav-button">
             <a href="{{ route('admin.attendance.staff.show', ['id' => $user->id, 'month' => $nextMonth]) }}" class="btn btn-primary">翌月</a>
-            <span class="arrow arrow-right"></span>
+            <span class="arrow">→</span>
         </button>
     </nav>
     <div class="table-container">

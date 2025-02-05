@@ -99,12 +99,12 @@
 .btn.btn-primary {
     background-color: #fff;
     color: #666;
-    padding: 5px 10px;
+    padding: 5px 5px;
     border-radius: 4px;
     font-weight: bold;
     border: none;
     cursor: pointer;
-    max-width: 100px;
+    max-width: 50px;
     text-decoration: none;
     font-size: 15px;
 }
@@ -129,22 +129,14 @@
 }
 
 .arrow {
-    border: solid #666;
+    color: #666;
     border-width: 0 2px 2px 0;
     display: inline-block;
     padding: 3px;
-    margin-top: 2px;
     background-color: #fff;
+    font-weight: bold;
+    font-size: 20px;
 }
-
-.arrow-left {
-    transform: rotate(135deg);
-}
-
-.arrow-right {
-    transform: rotate(-45deg);
-}
-
 
 .table-container {
     background-color: #fff;
@@ -171,6 +163,7 @@
     border-bottom: 3px solid #e5e7eb;
     font-weight: bold;
     text-align: center;
+    white-space: nowrap;
 }
 
 .attendance-table td {
@@ -179,6 +172,7 @@
     border-bottom: 1px solid #e5e7eb;
     font-weight: bold;
     text-align: center;
+    white-space: nowrap;
 }
 
 .attendance-table .detail-link {
@@ -205,11 +199,16 @@
     height: 40px;
 }
 
-.form-active input,
-.form-active textarea {
+.form-active input {
     border: 1px solid #ddd;
     background-color: white;
     color: #000;
+    display: block;
+    width: 180px;
+}
+
+.form-active textarea {
+    height: 100px;
 }
 
 .form-group {
@@ -230,6 +229,10 @@
     padding: 20px;
     align-items: center;
     justify-content: center;
+}
+
+.form-group:last-child {
+    border-radius: 0 0 8px 8px;
 }
 
 label {
@@ -253,6 +256,7 @@ input {
 
 span {
     background-color: white;
+    margin: 0 10px;
 }
 
 .time-range {
@@ -262,6 +266,7 @@ span {
     display: flex;
     justify-content: space-between;
     font-weight: bold;
+    gap: 8px;
 }
 
 .user-name {
@@ -372,4 +377,14 @@ span {
     color: #ff333f;
     margin-top: 15px;
     font-weight: bold;
+}
+
+@media screen and (min-width: 768px) and (max-width: 850px) {
+    .time-range {
+        padding: 0 5%;
+    }
+
+    .form-text {
+        padding: 0 5%;
+    }
 }
