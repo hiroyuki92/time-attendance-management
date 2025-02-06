@@ -38,6 +38,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('attendance')->name('attendance.')->group(function () {
             Route::get('/list', [StaffAttendanceController::class, 'index'])->name('list');
             Route::get('/{id}', [StaffAttendanceController::class, 'show'])->name('detail.show');
+            Route::put('/{id}', [StaffAttendanceController::class, 'update'])->name('update');
             Route::get('/staff/{id}', [StaffAttendanceController::class, 'staffAttendances'])->name('staff.show');
         });
 

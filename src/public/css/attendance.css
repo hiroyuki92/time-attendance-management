@@ -276,6 +276,7 @@ span {
     display: flex;
     font-weight: bold;
     letter-spacing: 0.1em;
+    margin-left: 0;
 }
 
 .break-row {

@@ -10,10 +10,11 @@
         <div class="vertical-bar"></div>
         <h1 class="heading-text">勤怠詳細</h1>
     </div>
-    <form class="form-container" action="{{ route('attendance.mod_request') }}" method="POST">
+    <form class="form-container" action="{{ route('admin.attendance.update', $attendance->id) }}" method="POST">
         @csrf
+        @method('PUT')
         <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-        <div class="{{ $isPending ? 'form-disabled' : 'form-active' }}">
+        <div class="{{ ($isPending || ($modRequest && $modRequest->status == 'approved')) ? 'form-disabled' : 'form-active' }}">
             <div class="form-group">
                 <label>名前</label>
                 <div class="time-range">
@@ -93,6 +94,9 @@
         <div class="button-container">
             @if ($isPending)
                 <span class="pending-message">*承認待ちのため修正できません。</span>
+            @elseif (!$isPending && $modRequest && $modRequest->status == \App\Models\AttendanceModification::STATUS_APPROVED)
+                <span class="submit-btn-disabled" disabled>承認済み
+                </span>
             @else
                 <button class="submit-btn">修正</button>
             @endif

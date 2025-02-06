@@ -72,23 +72,4 @@ class RequestController extends Controller
         return view('user.user_request_index', compact('requests', 'tab'));
     }
 
-    /* public function show($id)
-    {
-        $userId = Auth::id();
-
-        $attendance = Attendance::with(['user', 'break_times'])
-            ->where('id', $id)
-            ->where('user_id', $userId)
-            ->firstOrFail();
-
-        $modRequest = AttendanceModification::where('attendance_id', $id)
-            ->where('status', AttendanceModification::STATUS_PENDING)
-            ->first();
-
-        $breakModRequests = [];
-
-        $isPending = $modRequest ? true : false;
-
-        return view('user.user_attendance_detail', compact('attendance', 'isPending'));
-    } */
 }
