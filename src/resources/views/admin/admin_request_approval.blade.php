@@ -13,7 +13,7 @@
     <div class ="form-container">
         <div class="form-group">
                 <label>名前</label>
-                <div class="time-range">{{ $user->name }}</div>
+                <div class="time-range__request">{{ $user->name }}</div>
         </div>
         <div class="form-group">
             <label>日付</label>
@@ -62,7 +62,7 @@
         @endforelse
         <div class="form-group">
             <label>備考</label>
-            <div class="form-text">
+            <div class="form-text__request">
                 <div class="form-group_content-detail">{{ $modRequest->reason}}</div>
             </div>
         </div>
