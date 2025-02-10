@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AttendanceModificationRequest extends FormRequest
 {
@@ -24,6 +25,19 @@ class AttendanceModificationRequest extends FormRequest
     public function rules()
     {
         return [
+            'requested_year' => 'required',
+            'requested_date' => 'required',
+            Rule::unique('attendances', 'work_date')
+                ->where(function ($query) {
+                    $requestedWorkDate = Carbon::createFromFormat(
+                        'Y年n月j日',
+                        $this->requested_year . $this->requested_date
+                    )->format('Y-m-d');
+
+                    return $query->where('user_id', auth()->id())
+                        ->where('id', '!=', $this->attendance_id)
+                        ->where('work_date', $requestedWorkDate);
+                }),
             'requested_clock_in' => 'required|date_format:H:i',
             'requested_clock_out' => 'required|date_format:H:i|after:requested_clock_in',
             'break_times.*.requested_break_start' => 'nullable|date_format:H:i|after_or_equal:requested_clock_in|before_or_equal:requested_clock_out',
@@ -35,6 +49,7 @@ class AttendanceModificationRequest extends FormRequest
     public function messages()
     {
         return [
+            'requested_work_date.unique' => 'この日付の勤怠記録は既に存在します。',
             'requested_clock_out.after' => '出勤時間もしくは退勤時間が不適切な値です。',
             'requested_clock_in.required' => '出勤時間を入力してください。',
             'requested_clock_in.date_format' => '出勤時間は HH:mm 形式で入力してください。',

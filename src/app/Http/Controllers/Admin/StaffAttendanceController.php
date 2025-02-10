@@ -76,14 +76,15 @@ class StaffAttendanceController extends Controller
         return view('admin.admin_staff_attendance_list', compact('user', 'attendances', 'currentMonth', 'previousMonth', 'nextMonth', 'month'));
     }
 
-    public function update(Request $request)
+    public function update(AttendanceModificationRequest $request)
     {
         $attendance = Attendance::findOrFail($request->attendance_id);
-        $workDate = $attendance->work_date->format('Y-m-d');
+        $requestedWorkDate = Carbon::parse($request -> requested_work_date)->format('Y-m-d');
         $clockIn = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_in);
         $clockOut = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_out);
         $attendanceModRequest = AttendanceModification::create([
             'attendance_id' => $request->attendance_id,
+            'requested_work_date' => $requestedWorkDate,
             'requested_clock_in' => $clockIn,
             'requested_clock_out' => $clockOut,
             'reason' => $request->reason,

@@ -13,6 +13,7 @@ class AttendanceModification extends Model
 
     protected $fillable = [
         'attendance_id',
+        'requested_work_date',
         'requested_clock_in',
         'requested_clock_out',
         'reason',

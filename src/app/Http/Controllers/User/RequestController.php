@@ -18,11 +18,12 @@ class RequestController extends Controller
     public function modRequest(AttendanceModificationRequest $request)
     {
         $attendance = Attendance::findOrFail($request->attendance_id);
-        $workDate = $attendance->work_date->format('Y-m-d');
-        $clockIn = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_in);
-        $clockOut = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_out);
+        $requestedWorkDate = Carbon::parse($request -> requested_work_date)->format('Y-m-d');
+        $clockIn = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_in);
+        $clockOut = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_out);
         $attendanceModRequest = AttendanceModification::create([
             'attendance_id' => $request->attendance_id,
+            'requested_work_date' => $requestedWorkDate,
             'requested_clock_in' => $clockIn,
             'requested_clock_out' => $clockOut,
             'reason' => $request->reason,
@@ -37,8 +38,8 @@ class RequestController extends Controller
                     'attendance_mod_request_id' => $attendanceModRequest->id,
                     'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
                     'temp_index' => $index,
-                    'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start']),
-                    'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
+                    'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
+                    'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
                 ]);
                 }
             }
