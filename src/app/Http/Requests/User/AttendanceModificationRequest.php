@@ -26,8 +26,8 @@ class AttendanceModificationRequest extends FormRequest
         return [
             'requested_clock_in' => 'required|date_format:H:i',
             'requested_clock_out' => 'required|date_format:H:i|after:requested_clock_in',
-            'break_times.*.requested_break_start' => 'date_format:H:i|after_or_equal:requested_clock_in|before_or_equal:requested_clock_out',
-            'break_times.*.requested_break_end' => 'date_format:H:i|after_or_equal:requested_break_start|before_or_equal:requested_clock_out|after_or_equal:requested_clock_in',
+            'break_times.*.requested_break_start' => 'nullable|date_format:H:i|after_or_equal:requested_clock_in|before_or_equal:requested_clock_out',
+            'break_times.*.requested_break_end' => 'nullable|date_format:H:i|after_or_equal:requested_break_start|before_or_equal:requested_clock_out|after_or_equal:requested_clock_in',
             'reason' => 'required|string',
         ];
     }

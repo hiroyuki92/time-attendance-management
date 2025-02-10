@@ -91,10 +91,11 @@ class StaffAttendanceController extends Controller
         ]);
 
         if ($request->break_times) {
-            foreach ($request->break_times as $breakTime) {
+            foreach ($request->break_times as $index => $breakTime) {
                 BreakTimeModification::create([
                     'attendance_mod_request_id' => $attendanceModRequest->id,
                     'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
+                    'temp_index' => $index,
                     'requested_break_start' => $breakTime['requested_break_start'] !== '-'
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
                         : null,
@@ -127,7 +128,7 @@ class StaffAttendanceController extends Controller
                     ]);
                 }
             } else {
-                BreakTime::create([
+                $newBreakTime = BreakTime::create([
                     'attendance_id' => $attendance->id,
                     'break_start' => $breakTime['requested_break_start'] !== '-'
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
@@ -136,6 +137,9 @@ class StaffAttendanceController extends Controller
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
                         : null,
                     ]);
+                    BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
+                    ->where('temp_index', $index)
+                    ->update(['break_times_id' => $newBreakTime->id]);
                 }
             }
 

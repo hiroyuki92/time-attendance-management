@@ -14,6 +14,7 @@ class BreakTimeModification extends Model
     protected $fillable = [
         'attendance_mod_request_id',
         'break_times_id',
+        'temp_index',
         'requested_break_start',
         'requested_break_end',
     ];

@@ -77,10 +77,18 @@
                 </div>
             </div>
             @endforeach
+            <div class="form-group__break">
+                <label>休憩{{ count($attendance->break_times) + 1 }}</label>
+                <div class="time-range">
+                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_start]" value="{{ old('break_times.'.count($attendance->break_times).'.requested_break_start', '') }}">
+                    <span>～</span>
+                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_end]" value="{{ old('break_times.'.count($attendance->break_times).'.requested_break_end', '') }}">
+                </div>
+            </div>
             <div class="form-group">
                 <label>備考</label>
                 <div class="form-text">
-                    <textarea class="form-text-content" name="reason">{{ old('reason', $isPending && $modRequest ? $modRequest->reason : '') }}</textarea>
+                    <textarea class="form-text-content" name="reason">{{ old('reason', $modRequest ? $modRequest->reason : '') }}</textarea>
                 </div>
             </div>
             @if ($errors->any())

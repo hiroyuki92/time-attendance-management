@@ -10,6 +10,7 @@ use App\Models\AttendanceModification;
 use App\Models\BreakTimeModification;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 class RequestController extends Controller
@@ -29,23 +30,22 @@ class RequestController extends Controller
         ]);
 
         if ($request->break_times) {
-            foreach ($request->break_times as $breakTime) {
+            foreach ($request->break_times as $index => $breakTime) {
+
+                if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])) {
                 BreakTimeModification::create([
                     'attendance_mod_request_id' => $attendanceModRequest->id,
                     'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
-                    'requested_break_start' => $breakTime['requested_break_start'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
-                        : null,
-                    'requested_break_end' => $breakTime['requested_break_end'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
-                        : null,
+                    'temp_index' => $index,
+                    'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start']),
+                    'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
                 ]);
+                }
             }
+
+            return redirect()->route('attendance.index');
         }
-
-        return redirect()->route('attendance.index');
     }
-
     public function index(Request $request)
     {
         $tab = $request->input('tab', 'pending');
