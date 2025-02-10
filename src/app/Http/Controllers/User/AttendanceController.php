@@ -104,7 +104,8 @@ class AttendanceController extends Controller
         $startOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth();
 
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
-        $attendances = Attendance::where('user_id', Auth::id())
+        $attendances = Attendance::with('break_times')
+        ->where('user_id', Auth::id())
         ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
         ->orderBy('work_date', 'asc')
         ->get();

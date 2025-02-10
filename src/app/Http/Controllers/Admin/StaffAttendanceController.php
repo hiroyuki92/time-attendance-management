@@ -21,7 +21,7 @@ class StaffAttendanceController extends Controller
 
         $formattedDate = $targetDate->format('Y/m/d');
         $formattedDateJP = $targetDate->format('Y年m月d日');
-        $attendances = Attendance::with('user')
+        $attendances = Attendance::with(['user', 'break_times'])
         ->whereDate('work_date', $targetDate->toDateString())
         ->orderBy('clock_in', 'asc')
         ->get();
@@ -40,7 +40,6 @@ class StaffAttendanceController extends Controller
             ->whereNotNull('status')
             ->first();
 
-        // 休憩時間の修正リクエストを取得
         $breakModRequests = [];
         if ($modRequest) {
             $breakModRequests = BreakTimeModification::where('attendance_mod_request_id', $modRequest->id)
@@ -48,7 +47,6 @@ class StaffAttendanceController extends Controller
                 ->keyBy('break_time_id');
         }
 
-        // 申請中かどうかを判定
         $isPending = $modRequest && $modRequest->status == AttendanceModification::STATUS_PENDING;
 
         if (session('isPending') !== null) {

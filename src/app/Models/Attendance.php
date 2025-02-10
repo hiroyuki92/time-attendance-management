@@ -27,10 +27,9 @@ class Attendance extends Model
     {
         // 出勤時間と退勤時間があるか確認
         if (!$this->clock_in || !$this->clock_out) {
-            return '00:00'; // 未設定の場合
+            return '00:00';
         }
 
-        // 出勤時間と退勤時間を Carbon インスタンスに変換
         $clockIn = Carbon::parse($this->clock_in);
         $clockOut = Carbon::parse($this->clock_out);
 
@@ -50,15 +49,22 @@ class Attendance extends Model
         return sprintf('%02d:%02d', $hours, $minutes);
     }
 
-    protected function calculateBreakTime()
+    protected function getTotalBreakTimeAttribute()
     {
-        // 休憩時間が保存されている場合
-        if ($this->break_time) {
-            $breakDuration = Carbon::parse($this->break_end)->diffInMinutes(Carbon::parse($this->break_start));
-            return $breakDuration;
+        $totalBreakTime = 0;
+    
+        foreach ($this->break_times as $break) {
+            if ($break->break_start && $break->break_end) {
+                $breakStart = Carbon::parse($break->break_start);
+                $breakEnd = Carbon::parse($break->break_end);
+                $totalBreakTime += $breakEnd->diffInMinutes($breakStart);
+            }
         }
 
-        return 0; // 休憩時間がない場合
+        $hours = floor($totalBreakTime / 60);
+        $minutes = $totalBreakTime % 60;
+        
+        return sprintf('%02d:%02d', $hours, $minutes);
     }
 
     public function user()
