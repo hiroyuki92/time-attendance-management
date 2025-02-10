@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\AttendanceModificationRequest;
 use App\Models\User;
+use App\Models\BreakTime;
 use App\Models\Attendance;
 use App\Models\AttendanceModification;
 use App\Models\BreakTimeModification;
@@ -71,6 +72,16 @@ class AdminRequestController extends Controller
                     $break_time->break_start = $break_mod->requested_break_start;
                     $break_time->break_end = $break_mod->requested_break_end;
                     $break_time->save();
+                }
+                else {
+                    $break_time =  new BreakTime();
+                    $break_time->attendance_id = $attendance->id;
+                    $break_time->break_start = $break_mod->requested_break_start;
+                    $break_time->break_end = $break_mod->requested_break_end;
+                    $break_time->save();
+
+                    $break_mod->break_times_id = $break_time->id;
+                    $break_mod->save();
                 }
             }
         }

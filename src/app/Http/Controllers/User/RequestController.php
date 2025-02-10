@@ -32,7 +32,7 @@ class RequestController extends Controller
             foreach ($request->break_times as $breakTime) {
                 BreakTimeModification::create([
                     'attendance_mod_request_id' => $attendanceModRequest->id,
-                    'break_times_id' => $breakTime['id'],
+                    'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
                     'requested_break_start' => $breakTime['requested_break_start'] !== '-'
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
                         : null,

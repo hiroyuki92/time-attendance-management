@@ -94,7 +94,7 @@ class StaffAttendanceController extends Controller
             foreach ($request->break_times as $breakTime) {
                 BreakTimeModification::create([
                     'attendance_mod_request_id' => $attendanceModRequest->id,
-                    'break_times_id' => $breakTime['id'],
+                    'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
                     'requested_break_start' => $breakTime['requested_break_start'] !== '-'
                         ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
                         : null,
@@ -112,17 +112,20 @@ class StaffAttendanceController extends Controller
 
         if ($request->break_times) {
             foreach ($request->break_times as $breakTime) {
+
+            if (isset($breakTime['id'])) {
                 $breakTimeModel = BreakTime::find($breakTime['id']);
-            
-            if ($breakTimeModel) {
-                $breakTimeModel->update([
-                    'break_start' => $breakTime['requested_break_start'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
-                        : null,
-                    'break_end' => $breakTime['requested_break_end'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
-                        : null,
-                ]);
+                
+                if ($breakTimeModel) {
+                    $breakTimeModel->update([
+                        'break_start' => $breakTime['requested_break_start'] !== '-'
+                            ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
+                            : null,
+                        'break_end' => $breakTime['requested_break_end'] !== '-'
+                            ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
+                            : null,
+                    ]);
+                }
             } else {
                 BreakTime::create([
                     'attendance_id' => $attendance->id,
