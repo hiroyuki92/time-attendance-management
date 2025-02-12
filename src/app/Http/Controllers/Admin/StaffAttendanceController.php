@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\User\AttendanceModificationRequest;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Attendance;
@@ -78,8 +79,8 @@ class StaffAttendanceController extends Controller
     {
         $attendance = Attendance::findOrFail($request->attendance_id);
         $requestedWorkDate = Carbon::parse($request -> requested_work_date)->format('Y-m-d');
-        $clockIn = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_in);
-        $clockOut = Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $request->requested_clock_out);
+        $clockIn = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_in);
+        $clockOut = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_out);
         $attendanceModRequest = AttendanceModification::create([
             'attendance_id' => $request->attendance_id,
             'requested_work_date' => $requestedWorkDate,
@@ -91,17 +92,22 @@ class StaffAttendanceController extends Controller
 
         if ($request->break_times) {
             foreach ($request->break_times as $index => $breakTime) {
+
+                /* \Log::info('Break time data:', [
+            'index' => $index,
+            'start' => $breakTime['requested_break_start'] ?? 'null',
+            'end' => $breakTime['requested_break_end'] ?? 'null'
+        ]); */
+
+                if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])) {
                 BreakTimeModification::create([
                     'attendance_mod_request_id' => $attendanceModRequest->id,
                     'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
                     'temp_index' => $index,
-                    'requested_break_start' => $breakTime['requested_break_start'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
-                        : null,
-                    'requested_break_end' => $breakTime['requested_break_end'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
-                        : null,
+                    'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
+                    'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
                 ]);
+                }
             }
         }
 
@@ -111,41 +117,41 @@ class StaffAttendanceController extends Controller
         ]);
 
         if ($request->break_times) {
-            foreach ($request->break_times as $breakTime) {
+            foreach ($request->break_times as $index => $breakTime) {
 
             if (isset($breakTime['id'])) {
                 $breakTimeModel = BreakTime::find($breakTime['id']);
-                
-                if ($breakTimeModel) {
-                    $breakTimeModel->update([
-                        'break_start' => $breakTime['requested_break_start'] !== '-'
-                            ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
-                            : null,
-                        'break_end' => $breakTime['requested_break_end'] !== '-'
-                            ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
-                            : null,
-                    ]);
-                }
-            } else {
-                $newBreakTime = BreakTime::create([
-                    'attendance_id' => $attendance->id,
-                    'break_start' => $breakTime['requested_break_start'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_start'])
-                        : null,
-                    'break_end' => $breakTime['requested_break_end'] !== '-'
-                        ? Carbon::createFromFormat('Y-m-d H:i', $workDate . ' ' . $breakTime['requested_break_end'])
-                        : null,
-                    ]);
-                    BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
-                    ->where('temp_index', $index)
-                    ->update(['break_times_id' => $newBreakTime->id]);
+                if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])){
+                    if (isset($breakTime['id'])) {
+                        $breakTimeModel = BreakTime::find($breakTime['id']);
+                        if ($breakTimeModel) {
+                            $breakTimeModel->update([
+                                'break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
+                                'break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
+                            ]);
+                        }
+                        }  else {
+                        $newBreakTime = BreakTime::create([
+                            'attendance_id' => $attendance->id,
+                            'break_start' => $breakTime['requested_break_start'] !== '-'
+                                ? Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start'])
+                                : null,
+                            'break_end' => $breakTime['requested_break_end'] !== '-'
+                                ? Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
+                                : null,
+                            ]);
+                            BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
+                            ->where('temp_index', $index)
+                            ->update(['break_times_id' => $newBreakTime->id]);
+                        }
+                    }
+
+                    $isPending = $attendanceModRequest && $attendanceModRequest->status == AttendanceModification::STATUS_PENDING;
+
+                    return redirect()->route('admin.attendance.detail.show', $attendance->id)
+                        ->with('isPending', $isPending);
                 }
             }
-
-            $isPending = $attendanceModRequest && $attendanceModRequest->status == AttendanceModification::STATUS_PENDING;
-
-            return redirect()->route('admin.attendance.detail.show', $attendance->id)
-                ->with('isPending', $isPending);
         }
     }
 }

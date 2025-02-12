@@ -24,8 +24,16 @@
             <div class="form-group">
                 <label>日付</label>
                 <div class="time-range">
-                    <input type="text" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('Y') }}年">
-                    <input type="text" value="{{ \Carbon\Carbon::parse($attendance->work_date)->format('n月j日') }}">
+                    <input type="text" 
+                        name="requested_year" 
+                        value="{{ rtrim(old('requested_year', 
+                                        $modRequest ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('Y') : 
+                                        \Carbon\Carbon::parse($attendance->work_date)->format('Y')), '年') }}年">
+                    <input type="text" 
+                        name="requested_date" 
+                        value="{{ old('requested_date', 
+                                        $modRequest ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('n月j日') : 
+                                        \Carbon\Carbon::parse($attendance->work_date)->format('n月j日')) }}">
                 </div>
             </div>
             <div class="form-group">
