@@ -19,6 +19,9 @@ use App\Http\Controllers\User\RequestController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/', function () {
+    return response('Hello, world!', 200);
+});
 
 // 管理者認証ルート
 Route::prefix('admin')->name('admin.')->group(function () {
