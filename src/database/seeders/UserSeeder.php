@@ -15,12 +15,25 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        User::factory()->create([
-            'name' => '管理者ユーザー',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-        ]);
-        User::factory(10)->create();
+        if (config('database.default') === 'mysql_test') {
+            // テスト環境用のシーディング処理
+            User::factory()->create([
+                'name' => '管理者テストユーザー',
+                'email' => 'test_admin@example.com',
+                'password' => Hash::make('test_password'),
+                'role' => 'admin',
+            ]);
+            User::factory(10)->create();
+        } else {
+            // 開発環境用のシーディング処理
+            User::factory()->create([
+                'name' => '管理者ユーザー',
+                'email' => 'admin@example.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]);
+
+            User::factory(10)->create();
+        }
     }
 }
