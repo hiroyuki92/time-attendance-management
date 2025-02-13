@@ -35,7 +35,7 @@ class AttendanceModificationRequest extends FormRequest
             } catch (\Exception $e) {
             }
         return [
-            'requested_year' => 'required',
+            'requested_year' => 'required|regex:/^\d{4}年$/',
             'requested_date' => ['required',
                         function ($attribute, $value, $fail) use ($requestedWorkDate) {
                             if ($requestedWorkDate && Attendance::where('user_id', auth()->id())
@@ -51,13 +51,16 @@ class AttendanceModificationRequest extends FormRequest
             'requested_clock_out' => 'required|date_format:H:i|after:requested_clock_in',
             'break_times.*.requested_break_start' => 'nullable|date_format:H:i|after_or_equal:requested_clock_in|before_or_equal:requested_clock_out',
             'break_times.*.requested_break_end' => 'nullable|date_format:H:i|after_or_equal:requested_break_start|before_or_equal:requested_clock_out|after_or_equal:requested_clock_in',
-            'reason' => 'required|string',
+            'reason' => 'required|string|max:255',
         ];
     }
 
     public function messages()
     {
         return [
+            'requested_year.required' => '年を入力してください。',
+            'requested_year.regex' => '年は「YYYY年」の形式で入力してください。（例:2025年）',
+            'requested_date.required' => '日付を入力してください。',
             'requested_date.unique' => 'この日付の勤怠記録は既に存在します。',
             'requested_clock_out.after' => '出勤時間もしくは退勤時間が不適切な値です。',
             'requested_clock_in.required' => '出勤時間を入力してください。',
@@ -73,6 +76,8 @@ class AttendanceModificationRequest extends FormRequest
             'break_times.*.requested_break_end.date_format' => '休憩終了時間は HH:mm 形式で入力してください。',
 
             'reason.required' => '備考を記入してください。',
+            'reason.string' => '備考を文字列で入力してください。',
+            'reason.max' => '備考を255文字以下で入力してください。',
         ];
     }
 }
