@@ -30,7 +30,7 @@ class AdminLoginRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $user = \App\Models\User::where('email', $value)->first();
                     if (!$user || $user->role !== 'admin') {
-                        $fail('管理者権限がありません。');
+                        $fail('ログイン情報が登録されていません。');
                     }
                 },
             ],
