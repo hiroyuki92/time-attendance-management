@@ -53,7 +53,6 @@ class AdminLoginTest extends TestCase
             $response->assertSessionHasNoErrors();
             $response->assertSee($expectedMessage);
         } else {
-            // バリデーションエラーメッセージを確認
             $response->assertSessionHasErrors([
                 $field => $expectedMessage,
             ]);

@@ -20,7 +20,7 @@
             @endif
         </div>
         <h1 class="date">{{ $date }}</h1>
-        <div class="time">{{ date('H:i') }}</div>
+        <div class="time">{{ $time }}</div>
         <div class="attendance-buttons">
             @if ($latestAttendanceStatus === 'no_record')
             {{-- 勤怠データがない場合は出勤ボタンのみ --}}

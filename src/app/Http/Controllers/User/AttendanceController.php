@@ -28,7 +28,9 @@ class AttendanceController extends Controller
 
     public function create()
     {
-        $date = \Carbon\Carbon::now()->format('Y年n月j日');
+        $now = \Carbon\Carbon::now();
+        $date = $now->format('Y年n月j日');
+        $time = $now->format('H:i');
         $latestAttendance = $this->getTodayAttendance();
         $isCheckedOut = $latestAttendance && $latestAttendance->status === 'left';
 
@@ -36,7 +38,7 @@ class AttendanceController extends Controller
 
         $latestAttendanceStatus = !$latestAttendance ? 'no_record' : $latestAttendance->status;
 
-        return view('user.user_attendance_create', compact('date', 'latestAttendance', 'latestAttendanceStatus','isCheckedOut'));
+        return view('user.user_attendance_create', compact('date', 'time', 'latestAttendance', 'latestAttendanceStatus','isCheckedOut'));
     }
 
     public function startWork(Request $request)
