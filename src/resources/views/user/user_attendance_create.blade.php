@@ -36,10 +36,10 @@
             </form>
             <form action="{{ route('attendance.break.start') }}" method="POST">
                 @csrf
-                <button type="submit" class="attendance-btn break-btn">休憩</button>
+                <button type="submit" class="attendance-btn break-btn">休憩入</button>
             </form>
         @elseif ($latestAttendanceStatus === 'breaking')
-            {{-- 休憩中の場合は休憩戻りボタンを表示 --}}
+            {{-- 休憩中の場合は休憩戻ボタンを表示 --}}
             <form action="{{ route('attendance.break.end') }}" method="POST">
                 @csrf
                 <button type="submit" class="attendance-btn break-return-btn">休憩戻</button>

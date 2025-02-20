@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\Attendance; 
+use App\Models\Attendance;
 use Carbon\Carbon;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\CssSelector\CssSelectorConverter;
@@ -15,8 +15,8 @@ class AttendanceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $user;
-    private $admin;
+    protected $user;
+    protected $admin;
 
     protected function setUp(): void
     {
