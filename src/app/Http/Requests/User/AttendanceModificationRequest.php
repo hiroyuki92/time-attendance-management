@@ -68,8 +68,8 @@ class AttendanceModificationRequest extends FormRequest
             'requested_clock_out.required' => '退勤時間を入力してください。',
             'requested_clock_out.date_format' => '出勤時間は HH:mm 形式で入力してください。',
 
-            'break_times.*.requested_break_start.after_or_equal' => '休憩時間が勤務時間外です',
-            'break_times.*.requested_break_start.before_or_equal' => '休憩時間が勤務時間外です',
+            'break_times.*.requested_break_start.after_or_equal' => '休憩時間が勤務時間外です。',
+            'break_times.*.requested_break_start.before_or_equal' => '休憩時間が勤務時間外です。',
             'break_times.*.requested_break_start.date_format' => '休憩終了時間は HH:mm 形式で入力してください。',
             'break_times.*.requested_break_end.after_or_equal' => '休憩終了時間は休憩開始時間以降に設定してください。',
             'break_times.*.requested_break_end.before_or_equal' => '休憩時間が勤務時間外です。',
