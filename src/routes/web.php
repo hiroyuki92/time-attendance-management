@@ -69,7 +69,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // 打刻修正申請
-    Route::prefix('stamp-correction')->name('requests.')->group(function () {
+    Route::prefix('stamp_correction_request')->name('requests.')->group(function () {
         Route::get('/list', [RequestController::class, 'index'])->name('index');
     });
 

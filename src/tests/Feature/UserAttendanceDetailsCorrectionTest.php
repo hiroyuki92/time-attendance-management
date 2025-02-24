@@ -283,4 +283,228 @@ class UserAttendanceDetailsCorrectionTest extends TestCase
         Carbon::setTestNow();
     }
 
+    /**
+     * @test
+     * 「承認待ち」にログインユーザーが行った申請が全て表示されているかテスト
+     */
+    public function displayed_all_pending_mod_requests()
+    {
+        $now = Carbon::create(2025, 2, 14, 9, 0);
+        Carbon::setTestNow($now);
+
+        $anotherUser = User::factory()->create();
+
+        $attendance1 = $this->user->attendances()->create([
+            'work_date' => now()->toDateString(),
+            'clock_in' => Carbon::create(2025, 2, 14, 9, 0),
+            'clock_out' => Carbon::create(2025, 2, 14, 18, 0),
+            'status' => 'left',
+        ]);
+
+        // ユーザー1の別日の勤務データを作成
+        $attendance2 = $this->user->attendances()->create([
+            'work_date' => now()->subDay()->toDateString(),
+            'clock_in' => Carbon::create(2025, 2, 13, 9, 0),
+            'clock_out' => Carbon::create(2025, 2, 13, 18, 0),
+            'status' => 'left',
+        ]);
+
+        // 別ユーザーの勤務データを作成
+        $attendance3 = $anotherUser->attendances()->create([
+            'work_date' => now()->toDateString(),
+            'clock_in' => Carbon::create(2025, 2, 14, 9, 0),
+            'clock_out' => Carbon::create(2025, 2, 14, 18, 0),
+            'status' => 'left',
+        ]);
+
+        // ユーザー1の1つ目の申請
+        $this->actingAs($this->user)
+            ->post('/attendance/mod-request', [
+                'attendance_id' => $attendance1->id,
+                'requested_year' => now()->format('Y') . '年',
+                'requested_date' => now()->format('n月j日'),
+                'requested_work_date' => now()->toDateString(),
+                'requested_clock_in' => '10:00',
+                'requested_clock_out' => '18:00',
+                'reason' => '遅刻',
+                'status' => 'pending',
+            ]);
+
+        // ユーザー1の2つ目の申請
+        $this->actingAs($this->user)
+            ->post('/attendance/mod-request', [
+                'attendance_id' => $attendance2->id,
+                'requested_year' => now()->subDay()->format('Y') . '年',
+                'requested_date' => now()->subDay()->format('n月j日'),
+                'requested_work_date' => now()->subDay()->toDateString(),
+                'requested_clock_in' => '09:00',
+                'requested_clock_out' => '19:00',
+                'reason' => '残業',
+                'status' => 'pending',
+            ]);
+
+        $response = $this->actingAs($this->user)->get('/stamp_correction_request/list');
+        $response->assertStatus(200);
+
+        $html = $response->getContent();
+        $crawler = new Crawler($html);
+
+        $reasonCells = $crawler->filter('tr td:nth-child(4)')->each(function ($node) {
+            return $node->text();
+        });
+
+        $this->assertContains('遅刻', $reasonCells);
+        $this->assertContains('残業', $reasonCells);
+
+        $this->assertEquals(2, $crawler->filter('tr')->count() - 1);
+
+        Carbon::setTestNow();
+    }
+
+    /**
+     * @test
+     * 「承認済み」に管理者が承認した修正申請が全て表示されているかテスト
+     */
+    public function displayed_all_approved_mod_requests()
+    {
+        $now = Carbon::create(2025, 2, 14, 9, 0);
+        Carbon::setTestNow($now);
+
+        $attendance1 = $this->user->attendances()->create([
+            'work_date' => now()->toDateString(),
+            'clock_in' => Carbon::create(2025, 2, 14, 9, 0),
+            'clock_out' => Carbon::create(2025, 2, 14, 18, 0),
+            'status' => 'left',
+        ]);
+
+        // ユーザー1の別日の勤務データを作成
+        $attendance2 = $this->user->attendances()->create([
+            'work_date' => now()->subDay()->toDateString(),
+            'clock_in' => Carbon::create(2025, 2, 13, 9, 0),
+            'clock_out' => Carbon::create(2025, 2, 13, 18, 0),
+            'status' => 'left',
+        ]);
+
+        // ユーザー1の1つ目の申請
+        $this->actingAs($this->user)
+            ->post('/attendance/mod-request', [
+                'attendance_id' => $attendance1->id,
+                'requested_year' => now()->format('Y') . '年',
+                'requested_date' => now()->format('n月j日'),
+                'requested_work_date' => now()->toDateString(),
+                'requested_clock_in' => '10:00',
+                'requested_clock_out' => '18:00',
+                'reason' => '遅刻',
+                'status' => 'pending',
+            ]);
+
+        // ユーザー1の2つ目の申請
+        $this->actingAs($this->user)
+            ->post('/attendance/mod-request', [
+                'attendance_id' => $attendance2->id,
+                'requested_year' => now()->subDay()->format('Y') . '年',
+                'requested_date' => now()->subDay()->format('n月j日'),
+                'requested_work_date' => now()->subDay()->toDateString(),
+                'requested_clock_in' => '09:00',
+                'requested_clock_out' => '19:00',
+                'reason' => '残業',
+                'status' => 'pending',
+            ]);
+
+        $this->actingAs($this->admin,'admin');
+        $adminResponse = $this->get('/admin/stamp-correction/list');
+        $adminResponse->assertStatus(200);
+
+        // ユーザー1の1つ目の申請を承認
+        $modRequest = AttendanceModification::where('attendance_id', $attendance1->id)->first();
+        $approveResponse = $this->get("/admin/stamp-correction/approve/{$modRequest->id}");
+
+        $approvePostResponse = $this->post("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approvePostResponse->assertStatus(302);
+
+        $this->assertDatabaseHas('attendance_mod_requests', [
+            'id' => $modRequest->id,
+            'status' => 'approved',
+        ]);
+
+        // ユーザー1の2つ目の申請を承認
+        $modRequest = AttendanceModification::where('attendance_id', $attendance2->id)->first();
+        $approveResponse = $this->get("/admin/stamp-correction/approve/{$modRequest->id}");
+
+        $approvePostResponse = $this->post("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approvePostResponse->assertStatus(302);
+
+        $this->assertDatabaseHas('attendance_mod_requests', [
+            'id' => $modRequest->id,
+            'status' => 'approved',
+        ]);
+
+
+        $response = $this->actingAs($this->user)->get('/stamp_correction_request/list?tab=approved');
+        $response->assertStatus(200);
+
+        $html = $response->getContent();
+        $crawler = new Crawler($html);
+
+        $reasonCells = $crawler->filter('tr td:nth-child(4)')->each(function ($node) {
+            return $node->text();
+        });
+
+        $this->assertContains('遅刻', $reasonCells);
+        $this->assertContains('残業', $reasonCells);
+
+        $this->assertEquals(2, $crawler->filter('tr')->count() - 1);
+
+
+        Carbon::setTestNow();
+
+    }
+
+    /**
+     * @test
+     * 各申請の「詳細」を押下すると申請詳細画面に遷移するかテスト
+     */
+    public function transition_to_mod_request_detail_page_when_click_detail_button()
+    {
+        $now = Carbon::create(2025, 2, 14, 9, 0);
+        Carbon::setTestNow($now);
+
+        $attendance = $this->user->attendances()->create([
+            'work_date' => now()->toDateString(),
+            'clock_in' => Carbon::create(2025, 2, 14, 9, 0),
+            'clock_out' => Carbon::create(2025, 2, 14, 18, 0),
+            'status' => 'left',
+        ]);
+
+        $this->actingAs($this->user)
+            ->post('/attendance/mod-request', [
+                'attendance_id' => $attendance->id,
+                'requested_year' => now()->format('Y') . '年',
+                'requested_date' => now()->format('n月j日'),
+                'requested_work_date' => now()->toDateString(),
+                'requested_clock_in' => '10:00',
+                'requested_clock_out' => '18:00',
+                'reason' => '遅刻',
+                'status' => 'pending',
+            ]);
+
+        $response = $this->actingAs($this->user)->get('/stamp_correction_request/list');
+        $response->assertStatus(200);
+
+        $html = $response->getContent();
+        $crawler = new Crawler($html);
+
+        $detailButtonUrl = $crawler->filter('td a.detail-link')->first()->attr('href');
+
+        $detailResponse = $this->get($detailButtonUrl);
+        $detailResponse->assertStatus(200);
+
+        $detailHtml = $detailResponse->getContent();
+        $detailCrawler = new Crawler($detailHtml);
+
+        $this->assertStringContainsString('遅刻', $detailCrawler->filter('.form-text-content')->text());
+
+        Carbon::setTestNow();
+    }
+
 }

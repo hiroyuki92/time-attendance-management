@@ -11,8 +11,8 @@
         <h1 class="heading-text">申請一覧</h1>
     </div>
     <div class="tabs">
-        <a href="{{ url('admin/stamp-correction/list?tab=pending') }}" class="tab {{ $tab === 'pending' ? 'active' : '' }}">承認待ち</a>
-        <a href="{{ url('admin/stamp-correction/list?tab=approved') }}" class="tab {{ $tab === 'approved' ? 'active' : '' }}">承認済み</a>
+        <a href="{{ url('admin/stamp_correction_request/list?tab=pending') }}" class="tab {{ $tab === 'pending' ? 'active' : '' }}">承認待ち</a>
+        <a href="{{ url('admin/stamp_correction_request/list?tab=approved') }}" class="tab {{ $tab === 'approved' ? 'active' : '' }}">承認済み</a>
     </div>
     <div class="table-container">
         <table class="attendance-table">
