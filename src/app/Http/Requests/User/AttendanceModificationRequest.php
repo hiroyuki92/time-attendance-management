@@ -24,29 +24,50 @@ class AttendanceModificationRequest extends FormRequest
      *
      * @return array
      */
+
+
     public function rules()
     {
         $requestedWorkDate = null;
-            try {
-                $requestedWorkDate = Carbon::createFromFormat(
-                    'Y年n月j日',
-                    $this->requested_year . $this->requested_date
-                )->format('Y-m-d');
-            } catch (\Exception $e) {
+        try {
+        $requestedWorkDate = Carbon::createFromFormat(
+            'Y年m月d日',
+            $this->requested_year . $this->requested_date
+        )->format('Y-m-d');
+        
+        // コントローラーで使うために変換した日付をリクエストに追加
+        $this->merge(['requested_work_date' => $requestedWorkDate]);
+    } catch (\Exception $e) {
+    }
+
+        $targetUserId = $this->user_id ?? null;
+        
+        // 編集対象の勤怠データからユーザーIDを取得
+        if (empty($targetUserId) && !empty($this->attendance_id)) {
+            $attendance = Attendance::find($this->attendance_id);
+            if ($attendance) {
+                $targetUserId = $attendance->user_id;
             }
+        }
+
         return [
             'requested_year' => 'required|regex:/^\d{4}年$/',
             'requested_date' => ['required',
-                        function ($attribute, $value, $fail) use ($requestedWorkDate) {
-                            if ($requestedWorkDate && Attendance::where('user_id', auth()->id())
-                                ->where('id', '!=', $this->attendance_id)
-                                ->where('work_date', $requestedWorkDate)
-                                ->exists()
-                            ) {
-                                $fail('この日付の勤怠記録は既に存在します。');
-                            }
-                        },
-                    ],
+                function ($attribute, $value, $fail) use ($requestedWorkDate, $targetUserId) {
+                    if ($requestedWorkDate) {
+                        $query = Attendance::where('user_id', $targetUserId)
+                            ->where('work_date', $requestedWorkDate);
+                        
+                        if (!empty($this->attendance_id)) {
+                            $query->where('id', '!=', (int)$this->attendance_id);
+                        }
+                        
+                        if ($query->exists()) {
+                            $fail('この日付の勤怠記録は既に存在します。');
+                        }
+                    }
+                },
+            ],
             'requested_clock_in' => 'required|date_format:H:i',
             'requested_clock_out' => 'required|date_format:H:i|after:requested_clock_in',
             'break_times.*.requested_break_start' => 'nullable|date_format:H:i|after_or_equal:requested_clock_in|before_or_equal:requested_clock_out',
@@ -66,7 +87,7 @@ class AttendanceModificationRequest extends FormRequest
             'requested_clock_in.required' => '出勤時間を入力してください。',
             'requested_clock_in.date_format' => '出勤時間は HH:mm 形式で入力してください。',
             'requested_clock_out.required' => '退勤時間を入力してください。',
-            'requested_clock_out.date_format' => '出勤時間は HH:mm 形式で入力してください。',
+            'requested_clock_out.date_format' => '退勤時間は HH:mm 形式で入力してください。',
 
             'break_times.*.requested_break_start.after_or_equal' => '休憩時間が勤務時間外です。',
             'break_times.*.requested_break_start.before_or_equal' => '休憩時間が勤務時間外です。',

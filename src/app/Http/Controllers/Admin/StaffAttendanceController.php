@@ -78,7 +78,9 @@ class StaffAttendanceController extends Controller
     public function update(AttendanceModificationRequest $request)
     {
         $attendance = Attendance::findOrFail($request->attendance_id);
-        $requestedWorkDate = Carbon::parse($request -> requested_work_date)->format('Y-m-d');
+        $requestedWorkDate = $request->requested_work_date;
+
+
         $clockIn = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_in);
         $clockOut = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_out);
         $attendanceModRequest = AttendanceModification::create([
@@ -92,12 +94,6 @@ class StaffAttendanceController extends Controller
 
         if ($request->break_times) {
             foreach ($request->break_times as $index => $breakTime) {
-
-                /* \Log::info('Break time data:', [
-            'index' => $index,
-            'start' => $breakTime['requested_break_start'] ?? 'null',
-            'end' => $breakTime['requested_break_end'] ?? 'null'
-        ]); */
 
                 if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])) {
                 BreakTimeModification::create([

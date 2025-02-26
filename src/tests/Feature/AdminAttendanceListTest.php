@@ -7,8 +7,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Attendance;
-use App\Models\BreakTime;
-use App\Models\AttendanceModification;
 use Carbon\Carbon;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -57,10 +55,8 @@ class AdminAttendanceListTest extends TestCase
         $attendanceRows->each(function ($node, $index) use ($users) {
         $user = $users[$index];
 
-            // **ユーザー名のチェック**
             $this->assertStringContainsString($user->name, $node->filter('td:nth-child(1)')->text());
 
-            // **出勤・退勤時間のチェック**
             $this->assertStringContainsString('09:00', $node->filter('td:nth-child(2)')->text());
             $this->assertStringContainsString('18:00', $node->filter('td:nth-child(3)')->text());
 
@@ -133,10 +129,8 @@ class AdminAttendanceListTest extends TestCase
         $attendanceRows->each(function ($node, $index) use ($users) {
             $user = $users[$index];
 
-            // **ユーザー名のチェック**
             $this->assertStringContainsString($user->name, $node->filter('td:nth-child(1)')->text());
 
-            // **出勤・退勤時間のチェック**
             $this->assertStringContainsString('09:00', $node->filter('td:nth-child(2)')->text());
             $this->assertStringContainsString('18:00', $node->filter('td:nth-child(3)')->text());
         });
@@ -191,10 +185,8 @@ class AdminAttendanceListTest extends TestCase
         $attendanceRows->each(function ($node, $index) use ($users) {
             $user = $users[$index];
 
-            // **ユーザー名のチェック**
             $this->assertStringContainsString($user->name, $node->filter('td:nth-child(1)')->text());
 
-            // **出勤・退勤時間のチェック**
             $this->assertStringContainsString('09:00', $node->filter('td:nth-child(2)')->text());
             $this->assertStringContainsString('18:00', $node->filter('td:nth-child(3)')->text());
         });
