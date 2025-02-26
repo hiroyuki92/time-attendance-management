@@ -204,10 +204,14 @@ class UserAttendanceListTest extends TestCase
             ->get('/attendance/list');
         $response->assertStatus(200);
 
-        $detailResponse = $this->get('/attendance/' . $attendance->id);
+        $html = $response->getContent();
+        $crawler = new Crawler($html);
+
+        $detailUrl = $crawler->filter('.detail-link')->last()->attr('href');
+
+        $detailResponse = $this->get($detailUrl);
         $detailResponse->assertStatus(200);
         $detailHtml = $detailResponse->getContent();
-
         $detailCrawler = new Crawler($detailHtml);
 
         $this->assertEquals(
