@@ -260,7 +260,7 @@ class UserAttendanceDetailsCorrectionTest extends TestCase
 
         $this->actingAs($this->admin,'admin');
 
-        $adminResponse = $this->get('/admin/stamp-correction/list');
+        $adminResponse = $this->get('/admin/stamp_correction_request/list');
         $adminResponse->assertStatus(200);
 
         $adminHtml = $adminResponse->getContent();
@@ -270,7 +270,7 @@ class UserAttendanceDetailsCorrectionTest extends TestCase
         $this->assertStringContainsString('遅刻', $crawler->filter('td:nth-child(4)')->text());
 
         $modRequest = AttendanceModification::where('attendance_id', $attendance->id)->first();
-        $approveResponse = $this->get("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approveResponse = $this->get("/admin/stamp_correction_request/approve/{$modRequest->id}");
         $approveResponse->assertStatus(200);
 
         $approveHtml = $approveResponse->getContent();
@@ -412,14 +412,14 @@ class UserAttendanceDetailsCorrectionTest extends TestCase
             ]);
 
         $this->actingAs($this->admin,'admin');
-        $adminResponse = $this->get('/admin/stamp-correction/list');
+        $adminResponse = $this->get('/admin/stamp_correction_request/list');
         $adminResponse->assertStatus(200);
 
         // ユーザー1の1つ目の申請を承認
         $modRequest = AttendanceModification::where('attendance_id', $attendance1->id)->first();
-        $approveResponse = $this->get("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approveResponse = $this->get("/admin/stamp_correction_request/approve/{$modRequest->id}");
 
-        $approvePostResponse = $this->post("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approvePostResponse = $this->post("/admin/stamp_correction_request/approve/{$modRequest->id}");
         $approvePostResponse->assertStatus(302);
 
         $this->assertDatabaseHas('attendance_mod_requests', [
@@ -429,9 +429,9 @@ class UserAttendanceDetailsCorrectionTest extends TestCase
 
         // ユーザー1の2つ目の申請を承認
         $modRequest = AttendanceModification::where('attendance_id', $attendance2->id)->first();
-        $approveResponse = $this->get("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approveResponse = $this->get("/admin/stamp_correction_request/approve/{$modRequest->id}");
 
-        $approvePostResponse = $this->post("/admin/stamp-correction/approve/{$modRequest->id}");
+        $approvePostResponse = $this->post("/admin/stamp_correction_request/approve/{$modRequest->id}");
         $approvePostResponse->assertStatus(302);
 
         $this->assertDatabaseHas('attendance_mod_requests', [
