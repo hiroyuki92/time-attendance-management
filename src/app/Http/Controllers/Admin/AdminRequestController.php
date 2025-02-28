@@ -26,16 +26,16 @@ class AdminRequestController extends Controller
             ->select('attendance_mod_requests.*');
 
         if ($tab === 'pending') {
-            $requests = $query->where('attendance_mod_requests.status', AttendanceModification::STATUS_PENDING)->get();
-            $status_label = '承認待ち';
+        $query->where('attendance_mod_requests.status', AttendanceModification::STATUS_PENDING);
+        $status_label = '承認待ち';
         } else {
-            $requests = $query->where('attendance_mod_requests.status', AttendanceModification::STATUS_APPROVED)->get();
+            $query->where('attendance_mod_requests.status', AttendanceModification::STATUS_APPROVED);
             $status_label = '承認済み';
         }
 
         $requests = $query->get()->map(function ($request) use ($status_label) {
-        $request->status_label = $status_label;
-        return $request;
+            $request->status_label = $status_label;
+            return $request;
         });
 
         return view('admin.admin_request_index', compact('requests', 'tab', 'status_label'));

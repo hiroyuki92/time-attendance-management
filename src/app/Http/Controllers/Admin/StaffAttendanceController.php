@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\AttendanceModification;
 use App\Models\BreakTimeModification;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\DB;
 
 
 class StaffAttendanceController extends Controller
@@ -123,7 +124,145 @@ class StaffAttendanceController extends Controller
         return $response;
     }
 
-    public function update(AttendanceModificationRequest $request)
+    public function update(AttendanceModificationRequest $request, $id)
+{
+    try {
+        DB::beginTransaction();
+        
+        // 勤怠記録を取得
+        $attendance = Attendance::findOrFail($id);
+        $requestedWorkDate = $request->requested_work_date;
+        
+        // 出退勤時間の作成
+        $clockIn = $this->createDateTimeFromString($requestedWorkDate, $request->requested_clock_in);
+        $clockOut = $this->createDateTimeFromString($requestedWorkDate, $request->requested_clock_out);
+        
+        // 基本的な勤怠修正リクエストの作成
+        $attendanceModRequest = $this->createAttendanceModification(
+            $request->id,
+            $requestedWorkDate,
+            $clockIn,
+            $clockOut,
+            $request->reason
+        );
+        
+        // 休憩時間の修正情報を処理
+        if (!empty($request->break_times)) {
+            $this->processBreakTimeModifications($request->break_times, $attendanceModRequest, $requestedWorkDate);
+        }
+        
+        // 勤怠記録の更新
+        $attendance->update([
+            'clock_in' => $clockIn,
+            'clock_out' => $clockOut,
+        ]);
+        
+        // 休憩時間の更新または作成
+        if (!empty($request->break_times)) {
+            $this->updateOrCreateBreakTimes($request->break_times, $attendance, $attendanceModRequest, $requestedWorkDate);
+        }
+        
+        DB::commit();
+        
+        // リダイレクト
+        $isPending = $attendanceModRequest->status == AttendanceModification::STATUS_PENDING;
+        return redirect()->route('admin.attendance.detail.show', $attendance->id)
+            ->with('isPending', $isPending);
+            
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('勤怠更新エラー: ' . $e->getMessage());
+        return redirect()->back()->withErrors(['error' => '勤怠情報の更新中にエラーが発生しました。'])->withInput();
+    }
+}
+
+/**
+ * 日付と時間の文字列からCarbonインスタンスを作成
+ */
+private function createDateTimeFromString($date, $time)
+{
+    if (empty($time) || $time === '-') {
+        return null;
+    }
+    
+    return Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
+}
+
+/**
+ * 勤怠修正リクエストを作成
+ */
+private function createAttendanceModification($attendanceId, $workDate, $clockIn, $clockOut, $reason)
+{
+    return AttendanceModification::create([
+        'attendance_id' => $attendanceId,
+        'requested_work_date' => $workDate,
+        'requested_clock_in' => $clockIn,
+        'requested_clock_out' => $clockOut,
+        'reason' => $reason,
+        'status' => AttendanceModification::STATUS_APPROVED
+    ]);
+}
+
+/**
+ * 休憩時間の修正情報を処理
+ */
+private function processBreakTimeModifications($breakTimes, $attendanceModRequest, $workDate)
+{
+    foreach ($breakTimes as $index => $breakTime) {
+        if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
+            continue;
+        }
+        
+        BreakTimeModification::create([
+            'attendance_mod_request_id' => $attendanceModRequest->id,
+            'break_times_id' => $breakTime['id'] ?? null,
+            'temp_index' => $index,
+            'requested_break_start' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']),
+            'requested_break_end' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_end'])
+        ]);
+    }
+}
+
+/**
+ * 休憩時間の更新または作成
+ */
+private function updateOrCreateBreakTimes($breakTimes, $attendance, $attendanceModRequest, $workDate)
+{
+    foreach ($breakTimes as $index => $breakTime) {
+        // 休憩時間が空の場合はスキップ
+        if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
+            continue;
+        }
+        
+        $breakStart = $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']);
+        $breakEnd = $this->createDateTimeFromString($workDate, $breakTime['requested_break_end']);
+        
+        if (!empty($breakTime['id'])) {
+            // 既存の休憩時間を更新
+            $breakTimeModel = BreakTime::find($breakTime['id']);
+            if ($breakTimeModel) {
+                $breakTimeModel->update([
+                    'break_start' => $breakStart,
+                    'break_end' => $breakEnd
+                ]);
+            }
+        } else {
+            // 新しい休憩時間を作成
+            $newBreakTime = BreakTime::create([
+                'attendance_id' => $attendance->id,
+                'break_start' => $breakStart,
+                'break_end' => $breakEnd
+            ]);
+            
+            // 対応する修正リクエストを更新
+            BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
+                ->where('temp_index', $index)
+                ->update(['break_times_id' => $newBreakTime->id]);
+        }
+    }
+}
+
+    /* public function update(AttendanceModificationRequest $request)
     {
         $attendance = Attendance::findOrFail($request->attendance_id);
         $requestedWorkDate = $request->requested_work_date;
@@ -197,5 +336,5 @@ class StaffAttendanceController extends Controller
                 }
             }
         }
-    }
+    } */
 }
