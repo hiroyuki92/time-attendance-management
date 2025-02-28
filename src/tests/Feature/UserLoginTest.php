@@ -22,7 +22,11 @@ class UserLoginTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     * ログイン認証機能（一般ユーザー）テスト
+     * メールアドレスが未入力の場合、バリデーションメッセージが表示されるかテスト
+     */
     public function shows_validation_message_when_email_is_empty()
     {
         $response = $this->post('/login', [
@@ -36,7 +40,10 @@ class UserLoginTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     * パスワードが未入力の場合、バリデーションメッセージが表示されるかテスト
+     */
     public function shows_validation_message_when_password_is_empty()
     {
         $response = $this->post('/login', [
@@ -50,7 +57,10 @@ class UserLoginTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     * 登録内容と一致しない場合、バリデーションメッセージが表示されるかテスト
+     */
     public function shows_validation_message_when_credentials_do_not_match()
     {
         $response = $this->post('/login', [

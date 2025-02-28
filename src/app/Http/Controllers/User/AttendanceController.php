@@ -142,7 +142,6 @@ class AttendanceController extends Controller
                 ->keyBy('break_times_id');
         }
 
-        // 申請中かどうかを判定
         $isPending = $modRequest ? true : false;
 
         return view('user.user_attendance_detail', compact('attendance', 'isPending', 'modRequest', 'breakModRequests'));

@@ -19,6 +19,10 @@ class AdminLoginTest extends TestCase
         $this->seed(DatabaseSeeder::class);
     }
 
+    /**
+     * @test
+     * ログイン認証機能（管理者）テスト
+     */
     protected static function getValidationMessage($requestClass, $validationKey)
     {
         $request = app($requestClass);

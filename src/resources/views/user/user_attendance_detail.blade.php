@@ -63,7 +63,7 @@
                 <div class="time-range">
                     <input type="hidden" name="break_times[{{$index}}][id]" value="{{ $break_time->id }}">
                     <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{ old('break_times.'.$index.'.requested_break_start', 
-                      $isPending && isset($breakModRequests[$break_time->id])
+                    $isPending && isset($breakModRequests[$break_time->id])
                         ? ($breakModRequests[$break_time->id]->requested_break_start 
                             ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_start)->format('H:i') 
                             : '-')
@@ -73,7 +73,7 @@
                 }}">
                     <span>～</span>
                     <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{ old('break_times.'.$index.'.requested_break_end',
-                      $isPending && isset($breakModRequests[$break_time->id])
+                    $isPending && isset($breakModRequests[$break_time->id])
                         ? ($breakModRequests[$break_time->id]->requested_break_end 
                             ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_end)->format('H:i') 
                             : '-')

@@ -28,12 +28,11 @@ class AttendanceTest extends TestCase
 
     /**
      * @test
-     * 勤怠打刻画面の表示テスト
+     * 日時取得機能テスト
      */
 
     public function displayed_datetime_matches_current_datetime()
     {
-        // 現在時刻を固定
         $now = Carbon::create(2025, 2, 14, 13, 55);
         Carbon::setTestNow($now);
         $response = $this->actingAs($this->user)

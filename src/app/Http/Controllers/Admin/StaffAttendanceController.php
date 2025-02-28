@@ -80,25 +80,22 @@ class StaffAttendanceController extends Controller
 
     public function exportCsv($id, Request $request)
     {
-        // デフォルトは現在の年月
         $month = $request->query('month', now()->format('Y/m'));
-        
-        // 「2025/02」形式の文字列を解析して年と月を取得
+
         $parts = explode('/', $month);
         $year = isset($parts[0]) ? $parts[0] : now()->year;
         $monthNum = isset($parts[1]) ? $parts[1] : now()->month;
 
         $user = User::find($id);
         $userName = $user->name;
-        
-        // この年月の勤怠データを取得
+
         $attendances = Attendance::where('user_id', $id)
             ->whereYear('work_date', $year)
             ->whereMonth('work_date', $monthNum)
             ->orderBy('work_date')
             ->get();
 
-        // ファイル名用にフォーマット
+        // ファイル名
         $fileName = "{$userName}さん_{$year}_{$monthNum}.csv";
 
         $response = new StreamedResponse(function () use ($attendances) {
@@ -125,216 +122,130 @@ class StaffAttendanceController extends Controller
     }
 
     public function update(AttendanceModificationRequest $request, $id)
-{
-    try {
-        DB::beginTransaction();
-        
-        // 勤怠記録を取得
-        $attendance = Attendance::findOrFail($id);
-        $requestedWorkDate = $request->requested_work_date;
-        
-        // 出退勤時間の作成
-        $clockIn = $this->createDateTimeFromString($requestedWorkDate, $request->requested_clock_in);
-        $clockOut = $this->createDateTimeFromString($requestedWorkDate, $request->requested_clock_out);
-        
-        // 基本的な勤怠修正リクエストの作成
-        $attendanceModRequest = $this->createAttendanceModification(
-            $request->id,
-            $requestedWorkDate,
-            $clockIn,
-            $clockOut,
-            $request->reason
-        );
-        
-        // 休憩時間の修正情報を処理
-        if (!empty($request->break_times)) {
-            $this->processBreakTimeModifications($request->break_times, $attendanceModRequest, $requestedWorkDate);
-        }
-        
-        // 勤怠記録の更新
-        $attendance->update([
-            'clock_in' => $clockIn,
-            'clock_out' => $clockOut,
-        ]);
-        
-        // 休憩時間の更新または作成
-        if (!empty($request->break_times)) {
-            $this->updateOrCreateBreakTimes($request->break_times, $attendance, $attendanceModRequest, $requestedWorkDate);
-        }
-        
-        DB::commit();
-        
-        // リダイレクト
-        $isPending = $attendanceModRequest->status == AttendanceModification::STATUS_PENDING;
-        return redirect()->route('admin.attendance.detail.show', $attendance->id)
-            ->with('isPending', $isPending);
+    {
+        try {
+            DB::beginTransaction();
+
+            $attendance = Attendance::findOrFail($id);
+            $requestedWorkDate = $request->requested_work_date;
+
+            $clockIn = $this->createDateTimeFromString($requestedWorkDate, $request->requested_clock_in);
+            $clockOut = $this->createDateTimeFromString($requestedWorkDate, $request->requested_clock_out);
+
+            $attendanceModRequest = $this->createAttendanceModification(
+                $request->id,
+                $requestedWorkDate,
+                $clockIn,
+                $clockOut,
+                $request->reason
+            );
             
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('勤怠更新エラー: ' . $e->getMessage());
-        return redirect()->back()->withErrors(['error' => '勤怠情報の更新中にエラーが発生しました。'])->withInput();
+            // 休憩時間の修正情報を処理
+            if (!empty($request->break_times)) {
+                $this->processBreakTimeModifications($request->break_times, $attendanceModRequest, $requestedWorkDate);
+            }
+
+            $attendance->update([
+                'clock_in' => $clockIn,
+                'clock_out' => $clockOut,
+            ]);
+            
+            // 休憩時間の更新または作成
+            if (!empty($request->break_times)) {
+                $this->updateOrCreateBreakTimes($request->break_times, $attendance, $attendanceModRequest, $requestedWorkDate);
+            }
+            
+            DB::commit();
+
+            $isPending = $attendanceModRequest->status == AttendanceModification::STATUS_PENDING;
+            return redirect()->route('admin.attendance.detail.show', $attendance->id)
+                ->with('isPending', $isPending);
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error('勤怠更新エラー: ' . $e->getMessage());
+                return redirect()->back()->withErrors(['error' => '勤怠情報の更新中にエラーが発生しました。'])->withInput();
+            }
     }
-}
 
-/**
- * 日付と時間の文字列からCarbonインスタンスを作成
- */
-private function createDateTimeFromString($date, $time)
-{
-    if (empty($time) || $time === '-') {
-        return null;
-    }
-    
-    return Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
-}
-
-/**
- * 勤怠修正リクエストを作成
- */
-private function createAttendanceModification($attendanceId, $workDate, $clockIn, $clockOut, $reason)
-{
-    return AttendanceModification::create([
-        'attendance_id' => $attendanceId,
-        'requested_work_date' => $workDate,
-        'requested_clock_in' => $clockIn,
-        'requested_clock_out' => $clockOut,
-        'reason' => $reason,
-        'status' => AttendanceModification::STATUS_APPROVED
-    ]);
-}
-
-/**
- * 休憩時間の修正情報を処理
- */
-private function processBreakTimeModifications($breakTimes, $attendanceModRequest, $workDate)
-{
-    foreach ($breakTimes as $index => $breakTime) {
-        if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
-            continue;
+    /**
+     * 日付と時間の文字列からCarbonインスタンスを作成
+     */
+    private function createDateTimeFromString($date, $time)
+    {
+        if (empty($time) || $time === '-') {
+            return null;
         }
         
-        BreakTimeModification::create([
-            'attendance_mod_request_id' => $attendanceModRequest->id,
-            'break_times_id' => $breakTime['id'] ?? null,
-            'temp_index' => $index,
-            'requested_break_start' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']),
-            'requested_break_end' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_end'])
+        return Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $time);
+    }
+
+    /**
+     * 勤怠修正リクエストを作成
+     */
+    private function createAttendanceModification($attendanceId, $workDate, $clockIn, $clockOut, $reason)
+    {
+        return AttendanceModification::create([
+            'attendance_id' => $attendanceId,
+            'requested_work_date' => $workDate,
+            'requested_clock_in' => $clockIn,
+            'requested_clock_out' => $clockOut,
+            'reason' => $reason,
+            'status' => AttendanceModification::STATUS_APPROVED
         ]);
     }
-}
 
-/**
- * 休憩時間の更新または作成
- */
-private function updateOrCreateBreakTimes($breakTimes, $attendance, $attendanceModRequest, $workDate)
-{
-    foreach ($breakTimes as $index => $breakTime) {
-        // 休憩時間が空の場合はスキップ
-        if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
-            continue;
+    /**
+     * 休憩時間の修正情報を処理
+     */
+    private function processBreakTimeModifications($breakTimes, $attendanceModRequest, $workDate)
+    {
+        foreach ($breakTimes as $index => $breakTime) {
+            if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
+                continue;
+            }
+            
+            BreakTimeModification::create([
+                'attendance_mod_request_id' => $attendanceModRequest->id,
+                'break_times_id' => $breakTime['id'] ?? null,
+                'temp_index' => $index,
+                'requested_break_start' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']),
+                'requested_break_end' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_end'])
+            ]);
         }
-        
-        $breakStart = $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']);
-        $breakEnd = $this->createDateTimeFromString($workDate, $breakTime['requested_break_end']);
-        
-        if (!empty($breakTime['id'])) {
-            // 既存の休憩時間を更新
-            $breakTimeModel = BreakTime::find($breakTime['id']);
-            if ($breakTimeModel) {
-                $breakTimeModel->update([
+    }
+
+    /**
+     * 休憩時間の更新または作成
+     */
+    private function updateOrCreateBreakTimes($breakTimes, $attendance, $attendanceModRequest, $workDate)
+    {
+        foreach ($breakTimes as $index => $breakTime) {
+            if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
+                continue;
+            }
+            
+            $breakStart = $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']);
+            $breakEnd = $this->createDateTimeFromString($workDate, $breakTime['requested_break_end']);
+            
+            if (!empty($breakTime['id'])) {
+                $breakTimeModel = BreakTime::find($breakTime['id']);
+                if ($breakTimeModel) {
+                    $breakTimeModel->update([
+                        'break_start' => $breakStart,
+                        'break_end' => $breakEnd
+                    ]);
+                }
+            } else {
+                $newBreakTime = BreakTime::create([
+                    'attendance_id' => $attendance->id,
                     'break_start' => $breakStart,
                     'break_end' => $breakEnd
                 ]);
+                BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
+                    ->where('temp_index', $index)
+                    ->update(['break_times_id' => $newBreakTime->id]);
             }
-        } else {
-            // 新しい休憩時間を作成
-            $newBreakTime = BreakTime::create([
-                'attendance_id' => $attendance->id,
-                'break_start' => $breakStart,
-                'break_end' => $breakEnd
-            ]);
-            
-            // 対応する修正リクエストを更新
-            BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
-                ->where('temp_index', $index)
-                ->update(['break_times_id' => $newBreakTime->id]);
         }
     }
-}
-
-    /* public function update(AttendanceModificationRequest $request)
-    {
-        $attendance = Attendance::findOrFail($request->attendance_id);
-        $requestedWorkDate = $request->requested_work_date;
-
-
-        $clockIn = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_in);
-        $clockOut = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_out);
-        $attendanceModRequest = AttendanceModification::create([
-            'attendance_id' => $request->attendance_id,
-            'requested_work_date' => $requestedWorkDate,
-            'requested_clock_in' => $clockIn,
-            'requested_clock_out' => $clockOut,
-            'reason' => $request->reason,
-            'status' => AttendanceModification::STATUS_APPROVED
-        ]);
-
-        if ($request->break_times) {
-            foreach ($request->break_times as $index => $breakTime) {
-
-                if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])) {
-                BreakTimeModification::create([
-                    'attendance_mod_request_id' => $attendanceModRequest->id,
-                    'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
-                    'temp_index' => $index,
-                    'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
-                    'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
-                ]);
-                }
-            }
-        }
-
-        $attendance->update([
-            'clock_in' => $clockIn,
-            'clock_out' => $clockOut,
-        ]);
-
-        if ($request->break_times) {
-            foreach ($request->break_times as $index => $breakTime) {
-
-            if (isset($breakTime['id'])) {
-                $breakTimeModel = BreakTime::find($breakTime['id']);
-                if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])){
-                    if (isset($breakTime['id'])) {
-                        $breakTimeModel = BreakTime::find($breakTime['id']);
-                        if ($breakTimeModel) {
-                            $breakTimeModel->update([
-                                'break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
-                                'break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
-                            ]);
-                        }
-                        }  else {
-                        $newBreakTime = BreakTime::create([
-                            'attendance_id' => $attendance->id,
-                            'break_start' => $breakTime['requested_break_start'] !== '-'
-                                ? Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start'])
-                                : null,
-                            'break_end' => $breakTime['requested_break_end'] !== '-'
-                                ? Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
-                                : null,
-                            ]);
-                            BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
-                            ->where('temp_index', $index)
-                            ->update(['break_times_id' => $newBreakTime->id]);
-                        }
-                    }
-
-                    $isPending = $attendanceModRequest && $attendanceModRequest->status == AttendanceModification::STATUS_PENDING;
-
-                    return redirect()->route('admin.attendance.detail.show', $attendance->id)
-                        ->with('isPending', $isPending);
-                }
-            }
-        }
-    } */
 }

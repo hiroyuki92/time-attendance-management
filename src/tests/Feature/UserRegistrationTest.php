@@ -9,6 +9,9 @@ use Tests\TestCase;
 class UserRegistrationTest extends TestCase
 {
     /**
+     * 認証機能（一般ユーザー）テスト
+     */
+    /**
      * A basic feature test example.
      *
      * @return void

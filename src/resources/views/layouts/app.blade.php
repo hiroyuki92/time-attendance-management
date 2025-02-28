@@ -53,44 +53,44 @@
     <div class="content">
         @yield('content')
     </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.querySelector('.hamburger-menu');
-    const nav = document.querySelector('.header__nav');
-    const menu = document.querySelector('.header__menu');
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburger = document.querySelector('.hamburger-menu');
+        const nav = document.querySelector('.header__nav');
+        const menu = document.querySelector('.header__menu');
 
-    if (hamburger && nav) {
-        hamburger.addEventListener('click', function(e) {
-            e.stopPropagation(); // イベントの伝播を止める
-            this.classList.toggle('active');
-            nav.classList.toggle('active');
-        });
-
-        // メニューの外側をクリックした時に閉じる
-        document.addEventListener('click', function(e) {
-            if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
-                hamburger.classList.remove('active');
-                nav.classList.remove('active');
-            }
-        });
-
-        // メニュー内のリンクをクリックした時にメニューを閉じる
-        nav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburger.classList.remove('active');
-                nav.classList.remove('active');
+        if (hamburger && nav) {
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                nav.classList.toggle('active');
             });
-        });
 
-        // 画面サイズが変更された時の処理
-        window.addEventListener('resize', () => {
-            if (window.innerWidth < 768 || window.innerWidth > 850) {
-                hamburger.classList.remove('active');
-                nav.classList.remove('active');
-            }
-        });
-    }
-});
-</script>
+            // メニューの外側をクリックした時に閉じる
+            document.addEventListener('click', function(e) {
+                if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                }
+            });
+
+            // メニュー内のリンクをクリックした時にメニューを閉じる
+            nav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                });
+            });
+
+            // 画面サイズが変更された時の処理
+            window.addEventListener('resize', () => {
+                if (window.innerWidth < 768 || window.innerWidth > 850) {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>
