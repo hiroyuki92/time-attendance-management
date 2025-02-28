@@ -31,7 +31,7 @@
                 <tr>
                     <td>{{ $modRequest->status_label }}</td>
                     <td>{{ $modRequest->attendance->user->name }}</td>
-                    <td>{{ $modRequest->attendance->work_date->format('Y/m/d') }}</td>
+                    <td>{{ $modRequest->requested_work_date ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('Y/m/d') : $modRequest->attendance->work_date->format('Y/m/d') }}</td>
                     <td>{{ $modRequest->reason }}</td>
                     <td>{{ $modRequest->created_at->format('Y/m/d') }}</td>
                     <td><a href="{{ route('admin.requests.show', ['attendance_correct_request' => $modRequest->id]) }}" class="detail-link">詳細</a></td>

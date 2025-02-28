@@ -18,8 +18,8 @@
         <div class="form-group">
             <label>日付</label>
             <div class="form-group_content">
-                <div class="form-group_content-detail">{{ \Carbon\Carbon::parse($attendance->work_date)->format('Y') }}年</div>
-                <div class="form-group_content-detail">{{ \Carbon\Carbon::parse($attendance->work_date)->format('n月j日') }}</div>
+                <div class="form-group_content-detail">{{ \Carbon\Carbon::parse($modRequest->requested_work_date)->format('Y') }}年</div>
+                <div class="form-group_content-detail">{{ \Carbon\Carbon::parse($modRequest->requested_work_date)->format('n月j日') }}</div>
             </div>
         </div>
         <div class="form-group">
