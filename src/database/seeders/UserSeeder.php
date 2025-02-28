@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('test_password'),
                 'role' => 'admin',
             ]);
-            User::factory(10)->create();
+            User::factory(5)->create();
         } else {
             // 開発環境用のシーディング処理
             User::factory()->create([
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
             ]);
 
-            User::factory(10)->create();
+            User::factory(5)->create();
         }
     }
 }

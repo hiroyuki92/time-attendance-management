@@ -20,6 +20,8 @@ class AttendanceSeeder extends Seeder
         $startDate = Carbon::now()->subMonths(3);
         $endDate = Carbon::now();
 
+        $users = User::where('role', '!=', 'admin')->get();
+
         foreach ($users as $user) {
             $currentDate = $startDate->copy();
 
