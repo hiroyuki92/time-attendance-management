@@ -43,6 +43,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{id}', [StaffAttendanceController::class, 'show'])->name('detail.show');
             Route::put('/{id}', [StaffAttendanceController::class, 'update'])->name('update');
             Route::get('/staff/{id}', [StaffAttendanceController::class, 'staffAttendances'])->name('staff.show');
+            Route::get('/export/{id}', [StaffAttendanceController::class, 'exportCsv'])->name('export');
         });
 
         // 打刻修正申請

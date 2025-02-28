@@ -58,7 +58,7 @@
         </table>
     </div>
     <div class="button-container">
-        <button class="submit-btn">CSV出力</button>
+        <a href="{{ route('admin.attendance.export', ['id' => $user->id, 'month' => $currentMonth]) }}" class="submit-btn">CSV出力</a>
     </div>
 </main>
 @endsection

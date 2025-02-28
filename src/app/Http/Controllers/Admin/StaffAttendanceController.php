@@ -12,6 +12,8 @@ use App\Models\BreakTime;
 use App\Models\User;
 use App\Models\AttendanceModification;
 use App\Models\BreakTimeModification;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 
 class StaffAttendanceController extends Controller
 {
@@ -73,6 +75,52 @@ class StaffAttendanceController extends Controller
         ->orderBy('work_date', 'asc')
         ->get();
         return view('admin.admin_staff_attendance_list', compact('user', 'attendances', 'currentMonth', 'previousMonth', 'nextMonth', 'month'));
+    }
+
+    public function exportCsv($id, Request $request)
+    {
+        // デフォルトは現在の年月
+        $month = $request->query('month', now()->format('Y/m'));
+        
+        // 「2025/02」形式の文字列を解析して年と月を取得
+        $parts = explode('/', $month);
+        $year = isset($parts[0]) ? $parts[0] : now()->year;
+        $monthNum = isset($parts[1]) ? $parts[1] : now()->month;
+
+        $user = User::find($id);
+        $userName = $user->name;
+        
+        // この年月の勤怠データを取得
+        $attendances = Attendance::where('user_id', $id)
+            ->whereYear('work_date', $year)
+            ->whereMonth('work_date', $monthNum)
+            ->orderBy('work_date')
+            ->get();
+
+        // ファイル名用にフォーマット
+        $fileName = "{$userName}さん_{$year}_{$monthNum}.csv";
+
+        $response = new StreamedResponse(function () use ($attendances) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['日付', '出勤', '退勤', '休憩時間', '総労働時間']);
+
+            foreach ($attendances as $attendance) {
+                fputcsv($handle, [
+                    $attendance->work_date ? $attendance->work_date->format('Y-m-d') : '-',
+                    $attendance->clock_in ? $attendance->clock_in->format('H:i') : '-',
+                    $attendance->clock_out ? $attendance->clock_out->format('H:i') : '-',
+                    $attendance->total_break_time,
+                    $attendance->total_work_time,
+                ]);
+            }
+
+            fclose($handle);
+        });
+
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+
+        return $response;
     }
 
     public function update(AttendanceModificationRequest $request)
