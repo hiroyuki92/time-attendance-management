@@ -26,12 +26,12 @@ class AttendanceSeeder extends Seeder
             $currentDate = $startDate->copy();
 
             while ($currentDate <= $endDate) {
-                if ($currentDate->isWeekend()) {
+                if (!$currentDate->isToday() && $currentDate->isWeekend()) {
                     $currentDate->addDay();
                     continue;
                 }
 
-                if (rand(1, 100) <= 95) {
+                if ($currentDate->isToday() || rand(1, 100) <= 95) {
                     $clockInTime = $currentDate->copy()->setHour(9)->setMinute(rand(0, 30));
                     $currentTime = Carbon::now();
                     $status = 'left';
