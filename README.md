@@ -27,13 +27,22 @@ DB_DATABASE=laravel_db
 DB_USERNAME=laravel_user
 DB_PASSWORD=laravel_pass
 ```
-5. 各環境のアプリケーションキーを生成
+6. .env.testingに以下の環境変数を追加
+``` text
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=demo_test
+DB_USERNAME=laravel_user
+DB_PASSWORD=laravel_pass
+```
+7. 各環境のアプリケーションキーを生成
 ``` bash
 php artisan key:generate        # .env用
 php artisan key:generate --env=testing  # .env.testing用
 ```
 
-6. マイグレーションとシーディングの実行
+8. マイグレーションとシーディングの実行
 ``` bash
 php artisan migrate --seed
 ```  
@@ -42,16 +51,13 @@ php artisan migrate --seed
 	メールアドレス: admin@example.com  
 	パスワード: password  
 	権限: 管理者  
-  - 一般ユーザー  
-	メールアドレス: user@example.com  
-	パスワード: password  
-	権限: 一般ユーザー  
+ 
   - ランダムな一般ユーザー  
 	ダミーユーザーが5人生成されます。  
 	メールアドレスや名前はランダムに設定されています。  
 	パスワード: password  
 
-7. メール認証機能の設定  
+9. メール認証機能の設定  
     #### 機能概要
 	このアプリケーションには、ユーザー登録時にメールアドレスを確認するためのメール認証機能が実装されています。この機能により、不正なアカウント作成を防ぎ、アプリケーションのセキュリティを向上させます。
 
@@ -78,7 +84,7 @@ php artisan migrate --seed
 	送信されたメールはMailHogのWeb UI (http://localhost:8025) で確認できます。
 
    
-11. テストの実行
+10. テストの実行
 ``` bash
 php artisan test
 ```
