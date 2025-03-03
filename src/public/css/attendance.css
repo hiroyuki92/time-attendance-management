@@ -360,7 +360,6 @@ span {
 
 .form-group_content {
     display: flex;
-    justify-content: left;
     align-items: center;
     justify-content: space-between;
     width: 80%;
@@ -377,6 +376,23 @@ span {
     color: #ff333f;
     margin-top: 15px;
     font-weight: bold;
+}
+
+.authentication_content {
+    text-align: center;
+    padding-top: 10%;
+    font-weight: bold;
+}
+
+.authentication_button {
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+}
+
+.link {
+    color: #0073CC;
+    text-decoration: none;
 }
 
 @media screen and (min-width: 768px) and (max-width: 850px) {

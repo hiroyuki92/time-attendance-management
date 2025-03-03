@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -35,6 +38,22 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::loginView(function () {
             return view('auth.user_login');
+        });
+
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return null;
+            }
+
+            if (!$user->hasVerifiedEmail()) {
+                throw ValidationException::withMessages([
+                    'email' => __('メールアドレスの認証が完了していません。確認メールをチェックしてください。'),
+                ]);
+            }
+
+            return $user;
         });
 
         RateLimiter::for('login', function (Request $request) {
