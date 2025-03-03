@@ -62,6 +62,9 @@ class AdminRequestController extends Controller
 
         $attendance->clock_in = $modRequest->requested_clock_in;
         $attendance->clock_out = $modRequest->requested_clock_out;
+        if ($attendance->clock_out) {
+            $attendance->status = 'left';
+        }
         $attendance->save();
 
         $break_modifications = $modRequest->break_modification_requests;

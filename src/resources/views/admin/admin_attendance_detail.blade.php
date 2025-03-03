@@ -24,25 +24,25 @@
             <div class="form-group">
                 <label>日付</label>
                 <div class="time-range">
-                    <input type="text" 
-                        name="requested_year" 
-                        value="{{ rtrim(old('requested_year', 
-                                        $modRequest ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('Y') : 
+                    <input type="text"
+                        name="requested_year"
+                        value="{{ rtrim(old('requested_year',
+                                        $modRequest ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('Y') :
                                         \Carbon\Carbon::parse($attendance->work_date)->format('Y')), '年') }}年">
-                    <input type="text" 
-                        name="requested_date" 
-                        value="{{ old('requested_date', 
-                                        $modRequest ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('n月j日') : 
+                    <input type="text"
+                        name="requested_date"
+                        value="{{ old('requested_date',
+                                        $modRequest ? \Carbon\Carbon::parse($modRequest->requested_work_date)->format('n月j日') :
                                         \Carbon\Carbon::parse($attendance->work_date)->format('n月j日')) }}">
                 </div>
             </div>
             <div class="form-group">
                 <label>出勤・退勤</label>
                 <div class="time-range">
-                    <input type="text" name="requested_clock_in" value="{{ old('requested_clock_in', 
+                    <input type="text" name="requested_clock_in" value="{{ old('requested_clock_in',
                         $isPending && $modRequest
                             ? \Carbon\Carbon::parse($modRequest->requested_clock_in)->format('H:i')
-                            : \Carbon\Carbon::parse($attendance->clock_in)->format('H:i')) 
+                            : \Carbon\Carbon::parse($attendance->clock_in)->format('H:i'))
                     }}">
                     <span>～</span>
                     <input type="text" name="requested_clock_out" value="{{ old('requested_clock_out',
@@ -54,6 +54,7 @@
             </div>
             @foreach ($attendance->break_times as $index => $break_time)
             <div class="form-group__break">
+
                 <label>
                     @if ($index === 0)
                         休憩
@@ -62,25 +63,28 @@
                     @endif
                 </label>
                 <div class="time-range">
-                    <input type="hidden" name="break_times[{{$index}}][id]" value="{{ $break_time->id }}">
-                    <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{ old('break_times.'.$index.'.requested_break_start', 
-                    $isPending && isset($breakModRequests[$break_time->id])
-                        ? ($breakModRequests[$break_time->id]->requested_break_start 
-                            ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_start)->format('H:i') 
-                            : '-')
-                        : ($break_time->break_start 
-                            ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') 
-                            : '-')) 
-                }}">
+                    <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{
+                        old('break_times.'.$index.'.requested_break_start',
+                            $isPending && ($breakModRequest = $breakModRequests->firstWhere('temp_index', $index))
+                                ? ($breakModRequest->requested_break_start
+                                    ? \Carbon\Carbon::parse($breakModRequest->requested_break_start)->format('H:i')
+                                    : '-')
+                                : ($break_time->break_start
+                                    ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i')
+                                    : '-')
+                        )
+                    }}">
                     <span>～</span>
-                    <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{ old('break_times.'.$index.'.requested_break_end',
-                    $isPending && isset($breakModRequests[$break_time->id])
-                        ? ($breakModRequests[$break_time->id]->requested_break_end 
-                            ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_end)->format('H:i') 
-                            : '-')
-                        : ($break_time->break_end 
-                            ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') 
-                            : '-'))
+                    <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{
+                    old('break_times.'.$index.'.requested_break_end',
+                        $isPending && ($breakModRequest = $breakModRequests->firstWhere('temp_index', $index))
+                            ? ($breakModRequest->requested_break_end
+                                ? \Carbon\Carbon::parse($breakModRequest->requested_break_end)->format('H:i')
+                                : '-')
+                            : ($break_time->break_end
+                                ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i')
+                                : '-')
+                    )
                 }}">
                 </div>
             </div>
@@ -88,9 +92,25 @@
             <div class="form-group__break">
                 <label>休憩{{ count($attendance->break_times) + 1 }}</label>
                 <div class="time-range">
-                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_start]" value="{{ old('break_times.'.count($attendance->break_times).'.requested_break_start', '') }}">
+                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_start]" value="{{
+                        old('break_times.'.count($attendance->break_times).'.requested_break_start',
+                            $isPending && ($newBreakRequest = $breakModRequests->where('break_times_id', null)->first())
+                                ? ($newBreakRequest->requested_break_start
+                                    ? \Carbon\Carbon::parse($newBreakRequest->requested_break_start)->format('H:i')
+                                    : '-')
+                                : ''
+                        )
+                    }}">
                     <span>～</span>
-                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_end]" value="{{ old('break_times.'.count($attendance->break_times).'.requested_break_end', '') }}">
+                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_end]" value="{{
+                        old('break_times.'.count($attendance->break_times).'.requested_break_end',
+                            $isPending && ($newBreakRequest = $breakModRequests->where('break_times_id', null)->first())
+                                ? ($newBreakRequest->requested_break_end
+                                    ? \Carbon\Carbon::parse($newBreakRequest->requested_break_end)->format('H:i')
+                                    : '-')
+                                : ''
+                        )
+                    }}">
                 </div>
             </div>
             <div class="form-group">

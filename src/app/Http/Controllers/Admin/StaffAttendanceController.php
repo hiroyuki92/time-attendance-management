@@ -47,10 +47,8 @@ class StaffAttendanceController extends Controller
         $breakModRequests = [];
         if ($modRequest) {
             $breakModRequests = BreakTimeModification::where('attendance_mod_request_id', $modRequest->id)
-                ->get()
-                ->keyBy('break_time_id');
+                ->get();
         }
-
         $isPending = $modRequest && $modRequest->status == AttendanceModification::STATUS_PENDING;
 
         if (session('isPending') !== null) {
@@ -200,14 +198,23 @@ class StaffAttendanceController extends Controller
      */
     private function processBreakTimeModifications($breakTimes, $attendanceModRequest, $workDate)
     {
+        $existingBreakTimes = BreakTime::where('attendance_id', $attendanceModRequest->attendance_id)
+            ->orderBy('break_start')
+            ->get();
+        
         foreach ($breakTimes as $index => $breakTime) {
             if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
                 continue;
             }
             
+            $existingBreakTimeId = null;
+            if (isset($existingBreakTimes[$index])) {
+                $existingBreakTimeId = $existingBreakTimes[$index]->id;
+            }
+            
             BreakTimeModification::create([
                 'attendance_mod_request_id' => $attendanceModRequest->id,
-                'break_times_id' => $breakTime['id'] ?? null,
+                'break_times_id' => $existingBreakTimeId,
                 'temp_index' => $index,
                 'requested_break_start' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']),
                 'requested_break_end' => $this->createDateTimeFromString($workDate, $breakTime['requested_break_end'])
@@ -220,6 +227,10 @@ class StaffAttendanceController extends Controller
      */
     private function updateOrCreateBreakTimes($breakTimes, $attendance, $attendanceModRequest, $workDate)
     {
+        $breakTimeModifications = BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
+            ->get()
+            ->keyBy('temp_index');
+        
         foreach ($breakTimes as $index => $breakTime) {
             if (empty($breakTime['requested_break_start']) || empty($breakTime['requested_break_end'])) {
                 continue;
@@ -228,13 +239,29 @@ class StaffAttendanceController extends Controller
             $breakStart = $this->createDateTimeFromString($workDate, $breakTime['requested_break_start']);
             $breakEnd = $this->createDateTimeFromString($workDate, $breakTime['requested_break_end']);
             
-            if (!empty($breakTime['id'])) {
-                $breakTimeModel = BreakTime::find($breakTime['id']);
+            // BreakTimeModification から既存の休憩時間IDを取得
+            $existingBreakTimeId = null;
+            if (isset($breakTimeModifications[$index]) && !empty($breakTimeModifications[$index]->break_times_id)) {
+                $existingBreakTimeId = $breakTimeModifications[$index]->break_times_id;
+            }
+            
+            // 既存の休憩時間IDがある場合は更新、なければ新規作成
+            if ($existingBreakTimeId) {
+                $breakTimeModel = BreakTime::find($existingBreakTimeId);
+                
                 if ($breakTimeModel) {
                     $breakTimeModel->update([
                         'break_start' => $breakStart,
                         'break_end' => $breakEnd
                     ]);
+                } else {
+                    $newBreakTime = BreakTime::create([
+                        'attendance_id' => $attendance->id,
+                        'break_start' => $breakStart,
+                        'break_end' => $breakEnd
+                    ]);
+                    
+                    $breakTimeModifications[$index]->update(['break_times_id' => $newBreakTime->id]);
                 }
             } else {
                 $newBreakTime = BreakTime::create([
@@ -242,9 +269,10 @@ class StaffAttendanceController extends Controller
                     'break_start' => $breakStart,
                     'break_end' => $breakEnd
                 ]);
-                BreakTimeModification::where('attendance_mod_request_id', $attendanceModRequest->id)
-                    ->where('temp_index', $index)
-                    ->update(['break_times_id' => $newBreakTime->id]);
+                
+                if (isset($breakTimeModifications[$index])) {
+                    $breakTimeModifications[$index]->update(['break_times_id' => $newBreakTime->id]);
+                }
             }
         }
     }
