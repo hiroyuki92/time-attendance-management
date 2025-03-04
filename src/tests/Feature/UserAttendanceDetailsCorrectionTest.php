@@ -248,7 +248,7 @@ class UserAttendanceDetailsCorrectionTest extends TestCase
         $response = $this->actingAs($this->user)
         ->post('/attendance/mod-request', $updateData);
 
-        $response->assertStatus(200);
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('attendance_mod_requests', [
             'attendance_id' => $attendance->id,
