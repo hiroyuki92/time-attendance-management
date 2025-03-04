@@ -5,6 +5,10 @@
 @endsection
 
 @section('content')
+
+@php
+    $breakModRequests = collect(session('breakModRequests', $breakModRequests ?? []));
+@endphp
 <main class="container center">
     <div class="attendance__list">
         <div class="vertical-bar"></div>
@@ -52,46 +56,98 @@
                 </div>
             </div>
             @foreach ($attendance->break_times as $index => $break_time)
-            <div class="form-group__break">
-                <label>
-                    @if ($index === 0)
-                        休憩
-                    @else
-                        休憩{{ $index + 1 }}
-                    @endif
-                </label>
-                <div class="time-range">
-                    <input type="hidden" name="break_times[{{$index}}][id]" value="{{ $break_time->id }}">
-                    <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{ old('break_times.'.$index.'.requested_break_start', 
-                    $isPending && isset($breakModRequests[$break_time->id])
-                        ? ($breakModRequests[$break_time->id]->requested_break_start 
-                            ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_start)->format('H:i') 
+    <div class="form-group__break">
+        <label>
+            @if ($index === 0)
+                休憩
+            @else
+                休憩{{ $index + 1 }}
+            @endif
+        </label>
+        <div class="time-range">
+            {{-- 既存の休憩時間のIDを送信 --}}
+            <input type="hidden" name="break_times[{{$index}}][id]" value="{{ $break_time->id }}">
+
+            {{-- 休憩開始時間 --}}
+            <input type="text" name="break_times[{{$index}}][requested_break_start]" value="{{
+                old('break_times.'.$index.'.requested_break_start',
+                    $isPending && ($breakModRequest = $breakModRequests->firstWhere('break_times_id', $break_time->id))
+                        ? ($breakModRequest->requested_break_start
+                            ? \Carbon\Carbon::parse($breakModRequest->requested_break_start)->format('H:i')
                             : '-')
-                        : ($break_time->break_start 
-                            ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i') 
-                            : '-')) 
-                }}">
-                    <span>～</span>
-                    <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{ old('break_times.'.$index.'.requested_break_end',
-                    $isPending && isset($breakModRequests[$break_time->id])
-                        ? ($breakModRequests[$break_time->id]->requested_break_end 
-                            ? \Carbon\Carbon::parse($breakModRequests[$break_time->id]->requested_break_end)->format('H:i') 
-                            : '-')
-                        : ($break_time->break_end 
-                            ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i') 
+                        : ($break_time->break_start
+                            ? \Carbon\Carbon::parse($break_time->break_start)->format('H:i')
                             : '-'))
-                }}">
-                </div>
-            </div>
-            @endforeach
-            <div class="form-group__break">
-                <label>休憩{{ count($attendance->break_times) + 1 }}</label>
-                <div class="time-range">
-                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_start]" value="{{ old('break_times.'.count($attendance->break_times).'.requested_break_start', '') }}">
-                    <span>～</span>
-                    <input type="text" name="break_times[{{ count($attendance->break_times) }}][requested_break_end]" value="{{ old('break_times.'.count($attendance->break_times).'.requested_break_end', '') }}">
-                </div>
-            </div>
+            }}">
+            <span>～</span>
+
+            {{-- 休憩終了時間 --}}
+            <input type="text" name="break_times[{{$index}}][requested_break_end]" value="{{
+                old('break_times.'.$index.'.requested_break_end',
+                    $isPending && ($breakModRequest = $breakModRequests->firstWhere('break_times_id', $break_time->id))
+                        ? ($breakModRequest->requested_break_end
+                            ? \Carbon\Carbon::parse($breakModRequest->requested_break_end)->format('H:i')
+                            : '-')
+                        : ($break_time->break_end
+                            ? \Carbon\Carbon::parse($break_time->break_end)->format('H:i')
+                            : '-'))
+            }}">
+        </div>
+    </div>
+@endforeach
+
+{{-- 新規休憩入力用 --}}
+@php
+    $newBreakIndex = count($attendance->break_times); // 新規休憩のインデックス
+@endphp
+
+@foreach ($breakModRequests->where('break_times_id', null) as $newBreakRequest)
+    <div class="form-group__break">
+        <label>休憩{{ $newBreakIndex + 1 }}</label>
+        <div class="time-range">
+            {{-- 新規の休憩には ID を `null` で送信 --}}
+            <input type="hidden" name="break_times[{{ $newBreakIndex }}][id]" value="">
+
+            {{-- 休憩開始時間 --}}
+            <input type="text" name="break_times[{{ $newBreakIndex }}][requested_break_start]" value="{{
+                old('break_times.'.$newBreakIndex.'.requested_break_start',
+                    $isPending && $newBreakRequest
+                        ? ($newBreakRequest->requested_break_start
+                            ? \Carbon\Carbon::parse($newBreakRequest->requested_break_start)->format('H:i')
+                            : '-')
+                        : ''
+                )
+            }}">
+            <span>～</span>
+
+            {{-- 休憩終了時間 --}}
+            <input type="text" name="break_times[{{ $newBreakIndex }}][requested_break_end]" value="{{
+                old('break_times.'.$newBreakIndex.'.requested_break_end',
+                    $isPending && $newBreakRequest
+                        ? ($newBreakRequest->requested_break_end
+                            ? \Carbon\Carbon::parse($newBreakRequest->requested_break_end)->format('H:i')
+                            : '-')
+                        : ''
+                )
+            }}">
+        </div>
+    </div>
+    @php
+        $newBreakIndex++; // 次の新規休憩用にインデックスを更新
+    @endphp
+@endforeach
+
+{{-- 新規の休憩を追加するフォーム --}}
+<div class="form-group__break">
+    <label>休憩{{ $newBreakIndex + 1 }}</label>
+    <div class="time-range">
+        <input type="hidden" name="break_times[{{ $newBreakIndex }}][id]" value="">
+
+        <input type="text" name="break_times[{{ $newBreakIndex }}][requested_break_start]" value="{{ old('break_times.'.$newBreakIndex.'.requested_break_start', '') }}">
+        <span>～</span>
+        <input type="text" name="break_times[{{ $newBreakIndex }}][requested_break_end]" value="{{ old('break_times.'.$newBreakIndex.'.requested_break_end', '') }}">
+    </div>
+</div>
             <div class="form-group">
                 <label>備考</label>
                 <div class="form-text">

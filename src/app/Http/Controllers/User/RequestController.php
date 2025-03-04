@@ -11,42 +11,60 @@ use App\Models\BreakTimeModification;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
 
 
 class RequestController extends Controller
 {
     public function modRequest(AttendanceModificationRequest $request)
     {
-        $attendance = Attendance::findOrFail($request->attendance_id);
-        $requestedWorkDate = Carbon::parse($request -> requested_work_date)->format('Y-m-d');
-        $clockIn = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_in);
-        $clockOut = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_out);
-        $attendanceModRequest = AttendanceModification::create([
-            'attendance_id' => $request->attendance_id,
-            'requested_work_date' => $requestedWorkDate,
-            'requested_clock_in' => $clockIn,
-            'requested_clock_out' => $clockOut,
-            'reason' => $request->reason,
-            'status' => AttendanceModification::STATUS_PENDING
-        ]);
+        return DB::transaction(function () use ($request) {
+            $attendance = Attendance::findOrFail($request->attendance_id);
+            $requestedWorkDate = Carbon::parse($request->requested_work_date)->format('Y-m-d');
+
+            $clockIn = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_in);
+            $clockOut = Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $request->requested_clock_out);
+
+            // 勤怠修正リクエストの作成
+            $attendanceModRequest = AttendanceModification::create([
+                'attendance_id' => $request->attendance_id,
+                'requested_work_date' => $requestedWorkDate,
+                'requested_clock_in' => $clockIn,
+                'requested_clock_out' => $clockOut,
+                'reason' => $request->reason,
+                'status' => AttendanceModification::STATUS_PENDING
+            ]);
+
+            $breakModRequests = collect();
+
 
         if ($request->break_times) {
-            foreach ($request->break_times as $index => $breakTime) {
+                foreach ($request->break_times as $index => $breakTime) {
+                    if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])) {
 
-                if (!empty($breakTime['requested_break_start']) && !empty($breakTime['requested_break_end'])) {
-                BreakTimeModification::create([
-                    'attendance_mod_request_id' => $attendanceModRequest->id,
-                    'break_times_id' => isset($breakTime['id']) ? $breakTime['id'] : null,
-                    'temp_index' => $index,
-                    'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
-                    'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
-                ]);
+                        // 既存の休憩IDがあれば取得
+                        $breakTimesId = $breakTime['id'] ?? null;
+
+                        // 休憩修正リクエストの作成
+                        $breakModRequest = BreakTimeModification::create([
+                            'attendance_mod_request_id' => $attendanceModRequest->id,
+                            'break_times_id' => $breakTimesId,
+                            'temp_index' => $index,
+                            'requested_break_start' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_start']),
+                            'requested_break_end' => Carbon::createFromFormat('Y-m-d H:i', $requestedWorkDate . ' ' . $breakTime['requested_break_end'])
+                        ]);
+
+                        $breakModRequests->push($breakModRequest);
+                    }
                 }
             }
 
-            return redirect()->route('attendance.index');
-        }
+            return redirect()->route('attendance.index')->with('breakModRequests', $breakModRequests);
+        });
     }
+
     public function index(Request $request)
     {
         $tab = $request->input('tab', 'pending');
