@@ -60,25 +60,19 @@ php artisan migrate --seed
 9. メール認証機能の設定  
     #### 機能概要
 	このアプリケーションには、ユーザー登録時にメールアドレスを確認するためのメール認証機能が実装されています。この機能により、不正なアカウント作成を防ぎ、アプリケーションのセキュリティを向上させます。
-
     #### 開発環境でのメール確認方法
-	このプロジェクトでは、開発環境でのメール確認にMailHogを使用します。以下の手順でセットアップを行ってください。
-
-	1. MailHogをインストールします。
-   		- **macOSの場合**:
-     		```bash
-     		brew install mailhog
-     		```
-  	 	- **Linuxの場合**:
-     		公式リリースページからバイナリをダウンロードしてください。
-     		[https://github.com/mailhog/MailHog/releases](https://github.com/mailhog/MailHog/releases)
-   		- **Windowsの場合**:
-     		公式ページからバイナリをダウンロードして実行します。
-
-	2. MailHogを起動します。
-   		```bash
-   		mailhog
-
+	このプロジェクトでは、開発環境でのメール確認にMailHogを使用します。
+	MailHog を使用するために、`.env` に以下の設定を追加してください。
+	Docker を使うため、`MAIL_HOST=mailhog` を設定することが重要です。
+	#### **1️⃣ `.env` の設定**  
+		MAIL_MAILER=smtp
+		MAIL_HOST=mailhog
+		MAIL_PORT=1025
+		MAIL_USERNAME=null
+		MAIL_PASSWORD=null
+		MAIL_ENCRYPTION=null
+		MAIL_FROM_ADDRESS=example@test.com
+		MAIL_FROM_NAME="${APP_NAME}"
 	- **デフォルトポート**: `1025`
 	- **Web UI**: [http://localhost:8025](http://localhost:8025)  
 	送信されたメールはMailHogのWeb UI (http://localhost:8025) で確認できます。
