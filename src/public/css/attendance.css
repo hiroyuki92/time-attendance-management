@@ -59,6 +59,7 @@
     align-items: center;
     margin: 20px 0 70px 0;
 }
+
 .vertical-bar {
     width: 6px;
     height: 36px;
@@ -105,8 +106,8 @@
     border: none;
     cursor: pointer;
     max-width: 50px;
-    text-decoration: none;
     font-size: 15px;
+    text-decoration: none;
 }
 
 .month-nav-button:hover {
@@ -142,6 +143,7 @@
     background-color: #fff;
     border-radius: 5px;
 }
+
 .attendance-table {
     width: 100%;
     border-collapse: separate;
@@ -258,7 +260,8 @@ span {
     background-color: white;
 }
 
-.time-range, .time-range__request {
+.time-range,
+.time-range__request {
     background-color: white;
     width: 80%;
     padding: 0 10%;
@@ -271,7 +274,7 @@ span {
 .user-name {
     background-color: white;
     width: 80%;
-    padding:5px 8px;
+    padding: 5px 8px;
     display: flex;
     font-weight: bold;
     letter-spacing: 0.1em;
@@ -287,7 +290,8 @@ span {
     font-weight: bold;
 }
 
-.form-text, .form-text__request {
+.form-text,
+.form-text__request {
     width: 80%;
     padding: 0 10%;
     display: flex;
@@ -326,6 +330,7 @@ span {
     margin-top: 5%;
     border: none;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .submit-btn-disabled {
@@ -397,7 +402,7 @@ span {
 
 @media screen and (min-width: 768px) and (max-width: 850px) {
     .time-range {
-        padding: 0 5%;
+        padding: 0 10%;
     }
 
     .time-range__request {
@@ -405,10 +410,18 @@ span {
     }
 
     .form-text {
-        padding: 0 5%;
+        padding: 0 10%;
     }
 
     .form-text__request {
         padding: 0 10%;
+    }
+
+    .form-disabled input {
+        width: 100px;
+    }
+
+    .form-disabled span {
+        min-width: 10px;
     }
 }

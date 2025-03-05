@@ -40,15 +40,23 @@
                 <label>出勤・退勤</label>
                 <div class="time-range">
                     <input type="text" name="requested_clock_in" value="{{ old('requested_clock_in',
-                        $isPending && $modRequest
-                            ? \Carbon\Carbon::parse($modRequest->requested_clock_in)->format('H:i')
-                            : \Carbon\Carbon::parse($attendance->clock_in)->format('H:i'))
+                    $isPending && $modRequest
+                    ? ($modRequest->requested_clock_in
+                    ? \Carbon\Carbon::parse($modRequest->requested_clock_in)->format('H:i')
+                    : '-')
+                    : ($attendance->clock_in
+                    ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i')
+                    : '-'))
                     }}">
                     <span>～</span>
                     <input type="text" name="requested_clock_out" value="{{ old('requested_clock_out',
-                        $isPending && $modRequest
-                            ? \Carbon\Carbon::parse($modRequest->requested_clock_out)->format('H:i')
-                            : \Carbon\Carbon::parse($attendance->clock_out)->format('H:i'))
+                    $isPending && $modRequest
+                    ? ($modRequest->requested_clock_out
+                    ? \Carbon\Carbon::parse($modRequest->requested_clock_out)->format('H:i')
+                    : '-')
+                    : ($attendance->clock_out
+                    ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i')
+                    : '-'))
                     }}">
                 </div>
             </div>
