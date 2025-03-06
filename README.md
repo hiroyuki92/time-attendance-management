@@ -64,18 +64,18 @@ php artisan migrate --seed
 	このプロジェクトでは、開発環境でのメール確認にMailHogを使用します。
 	MailHog を使用するために、`.env` に以下の設定を追加してください。
 	Docker を使うため、`MAIL_HOST=mailhog` を設定することが重要です。
-	#### **1️⃣ `.env` の設定**  
-		MAIL_MAILER=smtp
-		MAIL_HOST=mailhog
-		MAIL_PORT=1025
-		MAIL_USERNAME=null
-		MAIL_PASSWORD=null
-		MAIL_ENCRYPTION=null
-		MAIL_FROM_ADDRESS=example@test.com
-		MAIL_FROM_NAME="${APP_NAME}"
-	- **デフォルトポート**: `1025`
-	- **Web UI**: [http://localhost:8025](http://localhost:8025)  
-	送信されたメールはMailHogのWeb UI (http://localhost:8025) で確認できます。
+	#### **1️⃣ `.env` の設定**
+```text
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=example@test.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
 
    
 10. テストの実行
