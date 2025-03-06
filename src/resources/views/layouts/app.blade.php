@@ -41,7 +41,7 @@
                         <li><a href="{{ route('admin.requests.index') }}">申請一覧</a></li>
                     @endif
                     <li>
-                        <form class="header__logout-button" action="{{ request()->is('admin/*') ? route('admin.logout') : route('logout') }}" method="post">
+                        <form class="header__logout-button" action="{{ request()->is('admin/*') ? route('admin.admin_logout') : route('logout') }}" method="post">
                             @csrf
                             <button class="header__logout">ログアウト</button>
                         </form>

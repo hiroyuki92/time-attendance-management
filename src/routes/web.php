@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\StaffAttendanceController;
 use App\Http\Controllers\Admin\AdminRequestController;
 use App\Http\Controllers\User\AttendanceController;
 use App\Http\Controllers\User\RequestController;
+use App\Http\Controllers\User\Auth\RegisteredUserController;
+use App\Http\Controllers\User\Auth\UserLoginController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -46,7 +48,7 @@ Route::post('/email/resend', function (Request $request) {
 // 管理者認証ルート
 Route::prefix('admin')->name('admin.')->group(function () {
     // 未認証の管理者用ルート
-    Route::middleware('guest')->group(function () {
+    Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AuthenticatedSessionController::class, 'index']);
         Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
     });
@@ -55,7 +57,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         // スタッフ管理
         Route::get('/staff/list', [StaffController::class, 'index'])->name('staff.index');
-        Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+        Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('admin_logout');
         
         // 勤怠管理
         Route::prefix('attendance')->name('attendance.')->group(function () {
@@ -76,6 +78,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // 一般ユーザー用ルート
+    // 未認証のユーザー用ルート
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store']);
+    Route::get('/login', [UserLoginController::class, 'index']);
+    Route::post('/login', [UserLoginController::class, 'login'])->name('user_login');
+    Route::post('/logout', [UserLoginController::class, 'logout'])->name('logout');
+
+
 Route::middleware('auth','verified')->group(function () {
     // 勤怠管理
     Route::prefix('attendance')->name('attendance.')->group(function () {
