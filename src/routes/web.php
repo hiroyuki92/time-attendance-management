@@ -28,21 +28,13 @@ Route::get('/', function () {
 });
 
 // メール認証関連のルート
-Route::view('/email/verify', 'auth.verify-email')
+Route::get('/email/verify', [RegisteredUserController::class, 'showVerificationNotice'])
     ->middleware('auth')
     ->name('verification.notice');
 
-Route::post('/email/resend', function (Request $request) {
-    if ($request->user()->hasVerifiedEmail()) {
-        Auth::logout();
-        return redirect('/login')->with('message', 'すでに認証が完了しています。ログインしてください。');
-    }
-
-    $request->user()->sendEmailVerificationNotification();
-
-    return redirect()->route('verification.notice');})
-        ->middleware(['auth', 'throttle:6,1'])
-        ->name('verification.resend');
+Route::post('/email/resend', [RegisteredUserController::class, 'resendVerificationEmail'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.resend');
 
 
 // 管理者認証ルート
