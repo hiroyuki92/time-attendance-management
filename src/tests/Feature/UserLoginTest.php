@@ -5,8 +5,9 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Database\Seeders\DatabaseSeeder;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use App\Models\User;
-use Laravel\Fortify\Rules\Password;
 
 class UserLoginTest extends TestCase
 {
@@ -15,62 +16,67 @@ class UserLoginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password123')
-        ]);
+        $this->seed(DatabaseSeeder::class);
     }
 
     /**
      * @test
      * ログイン認証機能（一般ユーザー）テスト
-     * メールアドレスが未入力の場合、バリデーションメッセージが表示されるかテスト
      */
-    public function shows_validation_message_when_email_is_empty()
+    protected static function getValidationMessage($requestClass, $validationKey)
     {
-        $response = $this->post('/login', [
-            'email' => '',
-            'password' => 'password123'
-        ]);
+        $request = app($requestClass);
+        $messages = $request->messages();
 
-        $response->assertSessionHasErrors(['email']);
-        $response->assertSessionHasErrors([
-            'email' => trans('validation.required', ['attribute' => 'メールアドレス'])
-        ]);
+        return $messages[$validationKey] ?? null;
+
+    }
+    /**
+     * @dataProvider validationMessageDataProvider
+     */
+    public function test_login_user_validation_messages($field, $value, $expectedMessage)
+    {
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $data = [
+            'email' => 'test_admin@example.com',
+            'password' => 'test_password',
+        ];
+        $data[$field] = $value;
+
+
+        $actualMessage = $expectedMessage === 'invalid_credentials'
+        ? 'ログイン情報が登録されていません。'
+        : $this->getValidationMessage(
+            \App\Http\Requests\User\UserLoginRequest::class,
+            $expectedMessage
+        );
+
+        $response = $this->post('/login', $data);
+
+        if ($expectedMessage === 'ログイン情報が登録されていません。') {
+            $response->assertSessionHasNoErrors();
+            $response->assertSee($expectedMessage);
+        } else {
+            $response->assertSessionHasErrors([
+                $field => $expectedMessage,
+            ]);
+        }
     }
 
-    /**
-     * @test
-     * パスワードが未入力の場合、バリデーションメッセージが表示されるかテスト
-     */
-    public function shows_validation_message_when_password_is_empty()
+    public static function validationMessageDataProvider()
     {
-        $response = $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => ''
-        ]);
-
-        $response->assertSessionHasErrors(['password']);
-        $response->assertSessionHasErrors([
-            'password' => trans('validation.required', ['attribute' => 'パスワード'])
-        ]);
-    }
-
-    /**
-     * @test
-     * 登録内容と一致しない場合、バリデーションメッセージが表示されるかテスト
-     */
-    public function shows_validation_message_when_credentials_do_not_match()
-    {
-        $response = $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => 'wrongpassword'
-        ]);
-
-        $response->assertSessionHasErrors(['email']);
-        $response->assertSessionHasErrors([
-            'email' => trans('auth.failed')
-        ]);
+        return [
+            'email_required' => [
+                'email', '', self::getValidationMessage(\App\Http\Requests\User\UserLoginRequest::class, 'email.required')
+            ],
+            'password_required' => [
+                'password', '', self::getValidationMessage(\App\Http\Requests\User\UserLoginRequest::class, 'password.required')
+            ],
+            'invalid_credentials' => [
+                'email',
+                'wrong@example.com',
+                'ログイン情報が登録されていません。'
+            ],
+        ];
     }
 }
