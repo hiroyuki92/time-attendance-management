@@ -160,3 +160,7 @@ erDiagram
     BREAK_TIMES ||--o{ BREAK_MODIFICATION_REQUESTS : ""
 
 ```
+
+## URL
+.環境開発：http://localhost/  
+.phpMyAdmin：http://localhost:8080/
