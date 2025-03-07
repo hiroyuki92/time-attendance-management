@@ -90,11 +90,11 @@ php artisan test
 ```
 
 ## 使用技術(実行環境)
-- PHP8.3.0
-- Laravel8.83.27
-- MySQL8.0.26
-- nginx 1.21.1
-- MailHog（開発環境でのメール送信テスト用）
+- **PHP** 7.4.9
+- **Laravel** 8.83.29
+- **MySQL** 8.0.26（Dockerコンテナ）
+- **Nginx** 1.27.3（Dockerコンテナ）
+- **MailHog**（開発環境でのメール送信テスト用）
 
 ## ER図
 ```mermaid
@@ -143,7 +143,7 @@ erDiagram
     
     BREAK_MODIFICATION_REQUESTS {
         bigint id PK
-        bigint attendance_modification_request_id FK
+        bigint attendance_mod_request_id FK
         bigint break_times_id FK
         integer temp_index
         time requested_break_start
