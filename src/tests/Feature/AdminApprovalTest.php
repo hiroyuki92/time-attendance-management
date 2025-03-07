@@ -227,7 +227,6 @@ class AdminApprovalTest extends TestCase
 
         $approvalFormAction = $approvalForm->attr('action');
 
-        // フォームを送信
         $approveResponse = $this->post($approvalFormAction, [
             '_token' => csrf_token()
         ]);
@@ -236,7 +235,6 @@ class AdminApprovalTest extends TestCase
         $updatedRequest = AttendanceModification::where('attendance_id', $attendanceId)->first();
         $this->assertEquals('approved', $updatedRequest->status);
 
-        // Attendance テーブルが更新されているか確認
         $updatedAttendance = Attendance::where('id', $attendanceId)->first();
         $updatedAttendance->refresh();
 
