@@ -76,6 +76,12 @@ MAIL_FROM_ADDRESS=example@test.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
+- **デフォルトポート**: `1025`
+- **Web UI**: [http://localhost:8025](http://localhost:8025)  
+
+送信されたメールは MailHog の Web UI ([http://localhost:8025](http://localhost:8025)) で確認できます。
+
+
 
    
 10. テストの実行
