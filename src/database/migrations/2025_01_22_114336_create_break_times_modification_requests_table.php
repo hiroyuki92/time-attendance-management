@@ -17,9 +17,9 @@ class CreateBreakTimesModificationRequestsTable extends Migration
             $table->id();
             $table->foreignId('attendance_mod_request_id')->constrained('attendance_mod_requests')->onDelete('cascade');
             $table->foreignId('break_times_id')->nullable()->constrained()->onDelete('cascade');
-            $table->integer('temp_index')->nullable();
-            $table->dateTime('requested_break_start')->nullable();
-            $table->dateTime('requested_break_end')->nullable();
+            $table->integer('temp_index')->default(0);
+            $table->dateTime('requested_break_start');
+            $table->dateTime('requested_break_end');
             $table->timestamps();
         });
     }
