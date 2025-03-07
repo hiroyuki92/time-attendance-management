@@ -14,9 +14,13 @@
         <div class="header__logo">
             <img src="{{ asset('images/logo.svg') }}" alt="サイトのロゴ">
         </div>
+
+        @auth
         <button class="hamburger-menu">
             <span class="hamburger-line"></span>
         </button>
+        @endauth
+        
         @if(!request() -> is('email/verify'))
             <nav class="header__nav">
                 @auth
